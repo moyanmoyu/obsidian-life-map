@@ -19,9 +19,12 @@ jobs:
           node-version: '22'
           cache: npm
 
-      # npm 10.x can exit 0 after crashing ("Exit handler never called!"), which
-      # leaves node_modules half-installed. Install with flags that avoid the
-      # audit/fund round-trips, then verify the toolchain really exists.
+      # npm 10.x crashes on this dependency tree with "Exit handler never
+      # called!" (and sometimes even exits 0). npm 11 is stable here, so
+      # upgrade first, then install and verify the toolchain really exists.
+      - name: Upgrade npm
+        run: npm install -g npm@11
+
       - name: Install dependencies
         run: |
           npm ci --no-audit --no-fund
