@@ -325,6 +325,18 @@ npm run build      # 生产构建
 npm run deploy -- /path/to/vault
 ```
 
+## 发布时不要带上你的 Key
+
+插件运行时把设置存在 vault 里：`.obsidian/plugins/life-map/data.json`，其中包含天地图 tk、HTTP 源的 token 等。**这个文件不在插件仓库里**，所以正常发版不会带上它。
+
+保险措施：
+
+- `.gitignore` 忽略 `data.json` 与 `*.zip`
+- `npm run package` 只打包白名单里的三个文件（`manifest.json` / `main.js` / `styles.css`），并显式拒绝 `data.json`
+- GitHub Release 由 CI 上传这三个文件，不包含任何设置
+
+⚠️ 手动分享时不要直接压缩 `.obsidian/plugins/life-map/` 整个目录，用 `npm run package`。
+
 ## License
 
 MIT
