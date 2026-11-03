@@ -57,7 +57,16 @@ Pages 项目 → **Custom domains** → 添加域名（如 `lifemap.yourdomain.c
 - 若要国内稳定访问：需要 **ICP 备案** + 国内 CDN/对象存储（阿里云 OSS、腾讯云 COS），成本不高但需要备案主体。
 - 折中方案：门户站放 Pages（给海外/能用代理的人看），**安装包放 GitHub Release 或国内可访问的对象存储**，两个链接都写进页面。
 
+## 多语言
+
+```
+site/index.html      中文（默认，根路径）
+site/en/index.html   英文（/en/）
+```
+
+两页互相有语言切换入口，并声明了 `hreflang`。新增语言时复制 `en/` 目录，改 `<html lang>`、导航和文案，再到两页补 `hreflang` 和切换链接。
+
 ## 上架前要改的地方
 
-- `index.html` 里的 GitHub 链接目前是占位 `https://github.com/`，替换成真实仓库地址
+- 两个页面里的 GitHub 链接目前都是占位 `https://github.com/`，替换成真实仓库地址
 - 需要真实截图时，把图片放进 `site/` 并在 `<div class="hero-visual">` 处替换（目前是纯 CSS/SVG 模拟图，不含任何真实数据）

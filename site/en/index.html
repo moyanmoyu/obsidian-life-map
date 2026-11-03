@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Life Map — Put your notes on the map</title>
+<meta name="description" content="Life Map is an Obsidian plugin that plots notes, GeoJSON, CSV and any JSON API on one map — with place aggregation, a sidebar, inline maps and export." />
+<meta property="og:title" content="Life Map — Put your notes on the map" />
+<meta property="og:description" content="A general-purpose map view for Obsidian: four data sources, place aggregation, inline maps." />
+<meta property="og:type" content="website" />
+<link rel="alternate" hreflang="zh-CN" href="../" />
+<link rel="alternate" hreflang="en" href="./" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="#top">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z" fill="currentColor"/></svg>
+    <span>Life Map</span>
+  </a>
+  <nav>
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="#install">Install</a>
+    <a href="#faq">FAQ</a>
+    <a href="../">中文</a>
+    <a class="ghost" href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Obsidian plugin · map-friendly outside the US</p>
+      <h1>Put your notes<br />on the map</h1>
+      <p class="lead">Notes, GeoJSON, CSV or any JSON API — four ways to bring places in. One marker per place, every visit kept as a sub-record.</p>
+      <div class="cta">
+        <a class="button primary" href="#install">Install</a>
+        <a class="button" href="#features">See features</a>
+      </div>
+      <ul class="badges">
+        <li>No server</li>
+        <li>No telemetry</li>
+        <li>Tianditu / AMap / OpenFreeMap</li>
+      </ul>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="mock">
+        <svg class="mock-map" viewBox="0 0 600 420" preserveAspectRatio="none">
+          <rect width="600" height="420" fill="var(--map-bg)" />
+          <path d="M-20 120 H620" stroke="var(--map-road)" stroke-width="14" />
+          <path d="M-20 300 H620" stroke="var(--map-road)" stroke-width="10" />
+          <path d="M150 -20 V440" stroke="var(--map-road)" stroke-width="12" />
+          <path d="M430 -20 V440" stroke="var(--map-road)" stroke-width="8" />
+          <path d="M250 300 L420 120" stroke="var(--map-road)" stroke-width="7" />
+          <circle cx="70" cy="60" r="46" fill="var(--map-green)" />
+          <circle cx="520" cy="360" r="60" fill="var(--map-green)" />
+          <rect x="300" y="330" width="90" height="50" fill="var(--map-building)" />
+          <rect x="180" y="150" width="70" height="40" fill="var(--map-building)" />
+        </svg>
+        <span class="pin" style="left:52%;top:46%"></span>
+        <div class="mock-popup">
+          <strong>Ramen Shop</strong>
+          <span class="meta">3 visits · last 2026-03-02</span>
+          <div class="visit"><i></i>2026-03-02<span>Open</span></div>
+          <div class="visit"><i></i>2025-11-18<span>Open</span></div>
+        </div>
+        <div class="mock-side">
+          <div class="side-tab on">Places</div><div class="side-tab">Photos</div><div class="side-tab">Timeline</div>
+          <div class="row"><b></b><span>Ramen Shop<em>3 visits</em></span></div>
+          <div class="row"><b></b><span>West Lake ride<em>1 visit</em></span></div>
+          <div class="row"><b></b><span>The Bund<em>2 visits</em></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="section">
+    <h2>Everything you need</h2>
+    <p class="section-lead">Not just "there is a map" — places treated as real data.</p>
+    <div class="grid">
+      <article class="card"><h3>Four data sources</h3><p>Note frontmatter, GeoJSON, CSV, and any JSON API declared with JSONPath. No code required.</p></article>
+      <article class="card"><h3>Places, not pins</h3><p>Notes at the same coordinate merge into one marker; each visit becomes a sub-record you can open or delete.</p></article>
+      <article class="card"><h3>Three sidebar views</h3><p>Place list, photo wall and timeline. Click an entry and the map flies to it.</p></article>
+      <article class="card"><h3>Inline maps</h3><p>Drop a <code>life-map</code> code block into a note and render a small map in place.</p></article>
+      <article class="card"><h3>Basemaps that fit</h3><p>Tianditu with automatic fallback, an AMap tile preset, custom XYZ. Coordinates are converted, so pins line up.</p></article>
+      <article class="card"><h3>No lock-in</h3><p>Export the current filtered view to GeoJSON or a Markdown table.</p></article>
+    </div>
+  </section>
+
+  <section id="how" class="section alt">
+    <h2>Three steps</h2>
+    <ol class="steps">
+      <li><b>Install</b><span>Drop three files into <code>.obsidian/plugins/life-map</code> and enable the plugin.</span></li>
+      <li><b>Add coordinates</b><span>Put <code>coordinates: ["40.0496", "116.2807"]</code> in frontmatter, or use the "New place note" command.</span></li>
+      <li><b>Open the map</b><span>Click the ribbon icon — pins, clustering and the sidebar appear.</span></li>
+    </ol>
+  </section>
+
+  <section id="install" class="section">
+    <h2>Install</h2>
+    <div class="install-grid">
+      <div class="install-card">
+        <h3>Manual (available now)</h3>
+        <ol>
+          <li>Download <code>life-map-x.y.z.zip</code> from Releases</li>
+          <li>Unzip into <code>&lt;your vault&gt;/.obsidian/plugins/life-map/</code></li>
+          <li>Obsidian → Settings → Community plugins → enable Life Map</li>
+        </ol>
+      </div>
+      <div class="install-card">
+        <h3>Community directory (in progress)</h3>
+        <p>Once listed you can install it from the community plugin browser.</p>
+        <p class="muted">Requires Obsidian 1.5.0+ · desktop and mobile</p>
+      </div>
+    </div>
+    <div class="note">
+      <strong>Note:</strong> the plugin ships without any map key. Tianditu needs your own <code>tk</code>; without it the plugin falls back to a keyless basemap.
+    </div>
+  </section>
+
+  <section id="faq" class="section alt">
+    <h2>FAQ</h2>
+    <details><summary>How is this different from AMap?</summary><p>You can switch the basemap to AMap tiles, but POI search and routing are not included — those require the AMap JS SDK, which is a different architecture.</p></details>
+    <details><summary>Does it work outside China?</summary><p>Yes. Overseas coordinates skip the GCJ-02 offset automatically and render correctly on OpenFreeMap or any global tile source.</p></details>
+    <details><summary>Does it upload my data?</summary><p>No telemetry. Network access only happens for the basemap you pick and the HTTP sources you configure yourself.</p></details>
+    <details><summary>Is deleting a note permanent?</summary><p>No. Deletes go to the Obsidian/system trash and always require confirmation.</p></details>
+  </section>
+
+  <section class="cta-final">
+    <h2>Turn the places you have been into a map you can browse</h2>
+    <a class="button primary" href="#install">Get started</a>
+  </section>
+</main>
+
+<footer>
+  <span>Life Map · MIT</span>
+  <span>Basemap data belongs to its providers · the plugin ships no map data</span>
+</footer>
+</body>
+</html>
