@@ -1,5 +1,7 @@
 # Life Map
 
+> 仓库：https://github.com/moyanmoyu/obsidian-life-map
+
 一个**通用的 Obsidian 地图视图**：把任意来源的地点数据画到一张国内可用的地图上。
 
 - **笔记属性**：frontmatter 里有经纬度的笔记自动上屏

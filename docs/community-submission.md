@@ -55,7 +55,7 @@ git push && git push --tags
   "name": "Life Map",
   "author": "moyu",
   "description": "Plot notes, GeoJSON, CSV and any JSON API on one map, with layers, filters, clustering, photo wall and timeline.",
-  "repo": "your-github-name/obsidian-life-map"
+  "repo": "moyanmoyu/obsidian-life-map"
 }
 ```
 
