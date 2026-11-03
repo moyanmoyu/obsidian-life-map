@@ -22,7 +22,6 @@ import { readCoords } from '../sources/vault-frontmatter';
 
 const SOURCE_ID = 'life-map-inline-points';
 const LAYER_POINTS = 'life-map-inline-circle';
-const LAYER_OWN = 'life-map-inline-own';
 
 /** Hard cap: every map is a WebGL context, and there are not many of those. */
 const MAX_INLINE_MAPS = 6;
@@ -231,7 +230,7 @@ export function renderInlineMap(
 				geometry: { type: 'Point' as const, coordinates: point.lngLat },
 				properties: {
 					index,
-					own: point.own,
+					kind: point.own ? 'own' : 'poi',
 					color: point.own ? '#e5484d' : POINT_DEFAULT_COLOR,
 				},
 			})),
@@ -240,7 +239,7 @@ export function renderInlineMap(
 			geojson.features.push({
 				type: 'Feature',
 				geometry: { type: 'Point', coordinates: extraOwn },
-				properties: { index: -1, own: true, color: '#e5484d' },
+				properties: { index: -1, kind: 'own', color: '#e5484d' },
 			} as never);
 		}
 
@@ -248,6 +247,13 @@ export function renderInlineMap(
 		if (existing) {
 			existing.setData(geojson as never);
 			return;
+		}
+
+		if (geojson.features.length === 0) {
+			container.createDiv({
+				cls: 'life-map-inline-empty',
+				text: options.tag ? `没有带标签「${options.tag}」的地点` : '当前没有可显示的地点',
+			});
 		}
 
 		map.addSource(SOURCE_ID, {
@@ -270,27 +276,17 @@ export function renderInlineMap(
 				'circle-opacity': 0.9,
 			},
 		});
+		// A single layer with data-driven styling: boolean feature filters were
+		// fragile across MapLibre versions, so the note's own point is styled by
+		// the `kind` property instead of living in a separate filtered layer.
 		map.addLayer({
 			id: LAYER_POINTS,
 			type: 'circle',
 			source: SOURCE_ID,
-			filter: ['==', ['get', 'own'], false],
 			paint: {
-				'circle-color': ['get', 'color'],
-				'circle-radius': 4,
-				'circle-stroke-width': 1.5,
-				'circle-stroke-color': '#ffffff',
-			},
-		});
-		map.addLayer({
-			id: LAYER_OWN,
-			type: 'circle',
-			source: SOURCE_ID,
-			filter: ['==', ['get', 'own'], true],
-			paint: {
-				'circle-color': '#e5484d',
-				'circle-radius': 6.5,
-				'circle-stroke-width': 2,
+				'circle-color': ['case', ['==', ['get', 'kind'], 'own'], '#e5484d', ['get', 'color']],
+				'circle-radius': ['case', ['==', ['get', 'kind'], 'own'], 6.5, 4],
+				'circle-stroke-width': ['case', ['==', ['get', 'kind'], 'own'], 2, 1.5],
 				'circle-stroke-color': '#ffffff',
 			},
 		});
@@ -323,15 +319,12 @@ export function renderInlineMap(
 		};
 
 		map.on('click', LAYER_POINTS, handlePointClick);
-		map.on('click', LAYER_OWN, handlePointClick);
-		for (const layer of [LAYER_POINTS, LAYER_OWN]) {
-			map.on('mouseenter', layer, () => {
-				if (map) map.getCanvas().style.cursor = 'pointer';
-			});
-			map.on('mouseleave', layer, () => {
-				if (map) map.getCanvas().style.cursor = '';
-			});
-		}
+		map.on('mouseenter', LAYER_POINTS, () => {
+			if (map) map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', LAYER_POINTS, () => {
+			if (map) map.getCanvas().style.cursor = '';
+		});
 	};
 
 	const create = () => {
