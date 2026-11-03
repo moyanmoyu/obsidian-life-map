@@ -76,6 +76,24 @@ export class LifeMapSettingsTab extends PluginSettingTab {
 				});
 			});
 
+		new Setting(parent)
+			.setName('高德底图预设')
+			.setDesc(
+				'一键填入高德栅格瓦片并切到 GCJ-02。仅供个人自用：瓦片版权归高德，对外分发需自行取得授权'
+			)
+			.addButton((button) =>
+				button.setButtonText('使用高德底图').onClick(async () => {
+					this.plugin.settings.customXyzUrl =
+						'https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}';
+					this.plugin.settings.customXyzCoordSys = 'GCJ02';
+					this.plugin.settings.customXyzAttribution = '© 高德地图';
+					this.plugin.settings.basemapId = 'custom-xyz';
+					await this.save();
+					new Notice('已切换到高德瓦片；若一直白屏说明服务端限制了该地址');
+					this.display();
+				})
+			);
+
 		this.textField(
 			parent,
 			'自定义瓦片署名',

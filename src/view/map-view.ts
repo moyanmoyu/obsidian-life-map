@@ -53,6 +53,7 @@ export class LifeMapView extends ItemView {
 	private resizeObserver: ResizeObserver | null = null;
 	private popup: MapLibrePopup | null = null;
 	private activeIndex: number | null = null;
+	private didInitialFit = false;
 	private tagFilter: string | null = null;
 	private bboxFilter: [number, number, number, number] | null = null;
 	private colorBySource = new Map<string, string>();
@@ -101,6 +102,7 @@ export class LifeMapView extends ItemView {
 		const toolbar = main.createDiv({ cls: 'life-map-toolbar' });
 		this.buildSearch(toolbar);
 		this.buildTimeFilter(toolbar);
+		this.buildFitButton(toolbar);
 		this.buildNewPlaceButton(toolbar);
 		this.buildRefreshButton(toolbar);
 
@@ -236,6 +238,44 @@ export class LifeMapView extends ItemView {
 		});
 	}
 
+	private buildFitButton(parent: HTMLElement): void {
+		const button = parent.createEl('button', {
+			cls: 'life-map-icon-button',
+			attr: { 'aria-label': '缩放到全部数据' },
+		});
+		setIcon(button, 'maximize');
+		button.addEventListener('click', () => this.fitToData(true));
+	}
+
+	/** Fit the viewport to every visible place (first load and the toolbar button). */
+	private fitToData(animate = false): void {
+		const map = this.map;
+		if (!map || this.placeLngLat.length === 0) return;
+
+		if (this.placeLngLat.length === 1) {
+			map.easeTo({ center: this.placeLngLat[0], zoom: 14, duration: animate ? 600 : 0 });
+			return;
+		}
+
+		let minLng = Infinity;
+		let minLat = Infinity;
+		let maxLng = -Infinity;
+		let maxLat = -Infinity;
+		for (const [lng, lat] of this.placeLngLat) {
+			if (lng < minLng) minLng = lng;
+			if (lat < minLat) minLat = lat;
+			if (lng > maxLng) maxLng = lng;
+			if (lat > maxLat) maxLat = lat;
+		}
+		map.fitBounds(
+			[
+				[minLng, minLat],
+				[maxLng, maxLat],
+			],
+			{ padding: 56, maxZoom: 15, duration: animate ? 600 : 0 }
+		);
+	}
+
 	private buildNewPlaceButton(parent: HTMLElement): void {
 		const button = parent.createEl('button', {
 			cls: 'life-map-icon-button',
@@ -368,6 +408,13 @@ export class LifeMapView extends ItemView {
 		this.updateEmpty(this.places.length);
 		this.updateStatus();
 		this.refreshSidebar();
+
+		// First render with data: frame the user's places instead of a fixed
+		// China-wide view, so points outside China are visible too.
+		if (!this.didInitialFit && this.places.length > 0) {
+			this.didInitialFit = true;
+			this.fitToData(false);
+		}
 	}
 
 	private addLayers(data: unknown): void {
@@ -727,6 +774,7 @@ export class LifeMapView extends ItemView {
 
 	/** Apply a filter/zoom context handed over by an inline map. */
 	applyIntent(intent: MapViewIntent): void {
+		this.didInitialFit = true;
 		this.tagFilter = intent.tag ?? null;
 		this.bboxFilter = intent.bbox ?? null;
 		this.renderExtraFilters();
