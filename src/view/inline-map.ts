@@ -161,7 +161,6 @@ export function renderInlineMap(
 		// Note coordinates carry their own coordinate system (usually GCJ-02 from
 		// 高德). Normalise to WGS-84 before projecting onto the basemap.
 		const ownWgs = own ? toWGS84(own.lat, own.lng, own.sys) : null;
-		const ownPoint = ownWgs ? fromWGS84(ownWgs[0], ownWgs[1], targetSys) : null;
 
 		const collected: Feature[] = [];
 		for (const result of plugin.results) {
@@ -173,12 +172,25 @@ export function renderInlineMap(
 			if (collected.length >= options.limit) break;
 		}
 
-		const points = collected.map((feature) => ({
-			feature,
-			lngLat: fromWGS84(feature.lat, feature.lng, targetSys),
-		}));
+		// The note's own POI is usually already in the dataset (vault source).
+		// Mark it as `own` instead of drawing a second marker on top of it.
+		let matchedOwn = false;
+		const points = collected.map((feature) => {
+			const isOwn = feature.link === ctx.sourcePath;
+			if (isOwn) matchedOwn = true;
+			return {
+				feature,
+				own: isOwn,
+				lngLat: fromWGS84(feature.lat, feature.lng, targetSys),
+			};
+		});
 
-		return { points, ownPoint };
+		// Only when the note's POI is not part of the dataset (e.g. excluded by
+		// tag filter) do we add a standalone marker for the note itself.
+		const extraOwn =
+			ownWgs && !matchedOwn ? fromWGS84(ownWgs[0], ownWgs[1], targetSys) : null;
+
+		return { points, extraOwn };
 	};
 
 	const addData = () => {
@@ -186,21 +198,25 @@ export function renderInlineMap(
 		const settings = plugin.settings;
 		const basemap = resolveBasemap(settings, plugin.registry.getBasemaps());
 		const targetSys = basemap ? basemapCoordSys(basemap, settings.customXyzCoordSys) : 'WGS84';
-		const { points, ownPoint } = buildFeatures(targetSys);
+		const { points, extraOwn } = buildFeatures(targetSys);
 
 		const geojson = {
 			type: 'FeatureCollection' as const,
 			features: points.map((point, index) => ({
 				type: 'Feature' as const,
 				geometry: { type: 'Point' as const, coordinates: point.lngLat },
-				properties: { index, color: POINT_DEFAULT_COLOR, own: false },
+				properties: {
+					index,
+					own: point.own,
+					color: point.own ? '#e5484d' : POINT_DEFAULT_COLOR,
+				},
 			})),
 		};
-		if (ownPoint) {
+		if (extraOwn) {
 			geojson.features.push({
 				type: 'Feature',
-				geometry: { type: 'Point', coordinates: ownPoint },
-				properties: { index: -1, color: '#e5484d', own: true },
+				geometry: { type: 'Point', coordinates: extraOwn },
+				properties: { index: -1, own: true, color: '#e5484d' },
 			} as never);
 		}
 
@@ -255,19 +271,43 @@ export function renderInlineMap(
 			},
 		});
 
-		map.on('click', LAYER_POINTS, (event: MapLayerMouseEvent) => {
+		const handlePointClick = (event: MapLayerMouseEvent) => {
 			const feature = event.features?.[0];
-			if (!feature) return;
-			const index = Number(feature.properties?.index);
+			if (!feature || feature.geometry.type !== 'Point') return;
+			const coordinates = feature.geometry.coordinates as [number, number];
+			const index = Number(feature.properties?.index ?? -1);
 			const point = points[index];
-			if (point?.feature.link) void plugin.app.workspace.openLinkText(point.feature.link, '', false);
-		});
-		map.on('mouseenter', LAYER_POINTS, () => {
-			if (map) map.getCanvas().style.cursor = 'pointer';
-		});
-		map.on('mouseleave', LAYER_POINTS, () => {
-			if (map) map.getCanvas().style.cursor = '';
-		});
+			const link = point?.feature.link;
+
+			// A different note: navigate to it.
+			if (link && link !== ctx.sourcePath) {
+				void plugin.app.workspace.openLinkText(link, '', false);
+				return;
+			}
+
+			// The note that hosts this map (or a POI without a link): opening the
+			// same note again is a no-op, so jump to the full map instead.
+			const settings = plugin.settings;
+			const basemap = resolveBasemap(settings, plugin.registry.getBasemaps());
+			const targetSys = basemap ? basemapCoordSys(basemap, settings.customXyzCoordSys) : 'WGS84';
+			const center = toWGS84(coordinates[1], coordinates[0], targetSys);
+			void plugin.activateView({
+				center,
+				zoom: Math.max(map?.getZoom() ?? 14, 14),
+				tag: options.tag,
+			});
+		};
+
+		map.on('click', LAYER_POINTS, handlePointClick);
+		map.on('click', LAYER_OWN, handlePointClick);
+		for (const layer of [LAYER_POINTS, LAYER_OWN]) {
+			map.on('mouseenter', layer, () => {
+				if (map) map.getCanvas().style.cursor = 'pointer';
+			});
+			map.on('mouseleave', layer, () => {
+				if (map) map.getCanvas().style.cursor = '';
+			});
+		}
 	};
 
 	const create = () => {
