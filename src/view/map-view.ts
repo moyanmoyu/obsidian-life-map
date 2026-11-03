@@ -101,6 +101,7 @@ export class LifeMapView extends ItemView {
 		const toolbar = main.createDiv({ cls: 'life-map-toolbar' });
 		this.buildSearch(toolbar);
 		this.buildTimeFilter(toolbar);
+		this.buildNewPlaceButton(toolbar);
 		this.buildRefreshButton(toolbar);
 
 		this.chipsEl = main.createDiv({ cls: 'life-map-chips' });
@@ -233,6 +234,15 @@ export class LifeMapView extends ItemView {
 			this.to = this.toInput.value;
 			this.scheduleRepaint();
 		});
+	}
+
+	private buildNewPlaceButton(parent: HTMLElement): void {
+		const button = parent.createEl('button', {
+			cls: 'life-map-icon-button',
+			attr: { 'aria-label': '新建地点笔记' },
+		});
+		setIcon(button, 'plus');
+		button.addEventListener('click', () => this.plugin.openNewPlaceModal());
 	}
 
 	private buildRefreshButton(parent: HTMLElement): void {
