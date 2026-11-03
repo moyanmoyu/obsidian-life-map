@@ -13,20 +13,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
-      - run: npm ci
-      - run: npm run build
+
+      # npm 10.x can exit 0 after crashing ("Exit handler never called!"), which
+      # leaves node_modules half-installed. Install with flags that avoid the
+      # audit/fund round-trips, then verify the toolchain really exists.
+      - name: Install dependencies
+        run: |
+          npm ci --no-audit --no-fund
+          if [ ! -x node_modules/.bin/tsc ] || [ ! -x node_modules/.bin/esbuild ]; then
+            echo "npm ci did not install devDependencies, retrying with npm install"
+            npm install --no-audit --no-fund
+          fi
+          test -x node_modules/.bin/tsc
+          test -x node_modules/.bin/esbuild
+
+      - name: Build
+        run: npm run build
+
       - name: Verify version consistency
         run: |
           MANIFEST=$(node -p "require('./manifest.json').version")
           PKG=$(node -p "require('./package.json').version")
           TAG=${GITHUB_REF#refs/tags/}
-          test "$MANIFEST" = "$PKG" || (echo "manifest=$MANIFEST package=$PKG" && exit 1)
-          test "$TAG" = "$MANIFEST" || (echo "tag=$TAG manifest=$MANIFEST" && exit 1)
-      - uses: softprops/action-gh-release@v2
+          echo "manifest=$MANIFEST package=$PKG tag=$TAG"
+          test "$MANIFEST" = "$PKG"
+          test "v$MANIFEST" = "$TAG" -o "$MANIFEST" = "$TAG"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             main.js
