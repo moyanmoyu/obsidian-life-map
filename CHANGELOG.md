@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1
+
+- 修复：内嵌地图把笔记的 GCJ-02 坐标当成 WGS-84 直接上图，导致整体偏移约 500 米。现在先按 `coord_sys` 归一化到 WGS-84 再投影
+- `center` 选项明确按 WGS-84 解释；笔记坐标则按自身 `coord_sys` 转换
+- 冒烟测试补充该场景的回归用例
+
 ## 0.3.0
 
 - 新增 `life-map` 代码块：在笔记里就地渲染小地图，支持 center / zoom / height / tag / limit / interactive

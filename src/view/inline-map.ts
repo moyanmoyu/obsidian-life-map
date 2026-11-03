@@ -14,7 +14,7 @@ import maplibregl, {
 import { basemapCoordSys } from '../basemaps';
 import { resolveBasemap } from '../basemaps/common';
 import { CLUSTER_COLOR, POINT_DEFAULT_COLOR } from '../constants';
-import { fromWGS84 } from '../core/coords';
+import { fromWGS84, toWGS84 } from '../core/coords';
 import type { Feature } from '../core/model';
 import type LifeMapPlugin from '../main';
 import { readCoords } from '../sources/vault-frontmatter';
@@ -129,7 +129,10 @@ export function renderInlineMap(
 
 	const buildFeatures = (targetSys: 'WGS84' | 'GCJ02' | 'BD09') => {
 		const own = ownCoords();
-		const ownPoint = own ? fromWGS84(own.lat, own.lng, targetSys) : null;
+		// Note coordinates carry their own coordinate system (usually GCJ-02 from
+		// 高德). Normalise to WGS-84 before projecting onto the basemap.
+		const ownWgs = own ? toWGS84(own.lat, own.lng, own.sys) : null;
+		const ownPoint = ownWgs ? fromWGS84(ownWgs[0], ownWgs[1], targetSys) : null;
 
 		const collected: Feature[] = [];
 		for (const result of plugin.results) {
@@ -146,7 +149,7 @@ export function renderInlineMap(
 			lngLat: fromWGS84(feature.lat, feature.lng, targetSys),
 		}));
 
-		return { points, ownPoint, own };
+		return { points, ownPoint };
 	};
 
 	const addData = () => {
@@ -252,10 +255,11 @@ export function renderInlineMap(
 		let centerLatLng: [number, number] = [35.86, 104.2];
 		let zoom = 4;
 		if (options.center) {
+			// Explicit `center` is documented as WGS-84.
 			centerLatLng = options.center;
 			zoom = options.zoom;
 		} else if (own) {
-			centerLatLng = [own.lat, own.lng];
+			centerLatLng = toWGS84(own.lat, own.lng, own.sys);
 			zoom = options.zoom;
 		}
 		const center = fromWGS84(centerLatLng[0], centerLatLng[1], basemapSys);

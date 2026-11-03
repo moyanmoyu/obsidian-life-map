@@ -22,6 +22,12 @@ console.log('coords');
 	const [bLat, bLng] = fromWGS84(39.9042, 116.4074, 'BD09');
 	const [gLat2, gLng2] = toWGS84(bLat, bLng, 'BD09');
 	check('bd09 roundtrip', Math.abs(gLat2 - 39.9042) < 1e-4 && Math.abs(gLng2 - 116.4074) < 1e-4);
+	// Regression: a note storing GCJ-02 must land on the WGS-84 basemap at the
+	// converted position, not at the raw value (was an inline-map offset bug).
+	const noteRaw: [number, number] = [40.049613, 116.280701];
+	const noteWgs = toWGS84(noteRaw[0], noteRaw[1], 'GCJ02');
+	check('note GCJ02 -> WGS84 differs', Math.abs(noteWgs[0] - noteRaw[0]) > 0.0005);
+	check('note WGS84 round-trips', Math.abs(fromWGS84(noteWgs[0], noteWgs[1], 'GCJ02')[1] - noteRaw[1]) < 1e-6);
 	const [oLat, oLng] = toWGS84(48.8584, 2.2945, 'GCJ02');
 	check('outside china untouched', oLat === 48.8584 && oLng === 2.2945);
 }
