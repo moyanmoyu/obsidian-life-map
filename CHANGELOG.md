@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+- 新增 `life-map` 代码块：在笔记里就地渲染小地图，支持 center / zoom / height / tag / limit / interactive
+- 笔记自身坐标会以高亮点标出，点击其他点位可跳转笔记
+- 单个页面最多 6 个内嵌地图（WebGL 上下文限制），超出时降级为提示
+- 代码块随笔记关闭自动释放地图资源（MarkdownRenderChild 生命周期）
+
 ## 0.2.0
 
 - 深色模式：底图跟随主题切换（天地图/自定义瓦片用暗色遮罩，OpenFreeMap 用官方暗色样式），点位颜色不受影响

@@ -12,7 +12,7 @@ import {
 	toPhotoRefs,
 } from './helpers';
 
-interface ParsedCoords {
+export interface ParsedCoords {
 	lat: number;
 	lng: number;
 	sys: CoordSys;
@@ -40,7 +40,11 @@ function parseCoordValue(value: unknown): [number, number] | null {
 	return null;
 }
 
-function readCoords(fm: Record<string, unknown>, settings: VaultSourceSettings): ParsedCoords | null {
+export function readCoords(
+	fm: Record<string, unknown> | undefined,
+	settings: VaultSourceSettings
+): ParsedCoords | null {
+	if (!fm) return null;
 	const declared = fm[settings.coordSysProperty];
 	const sys: CoordSys = isCoordSys(declared) ? declared : settings.coordSys;
 

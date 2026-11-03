@@ -11,6 +11,7 @@ import { LifeMapSettingsTab } from './settings-tab';
 import { CsvSource } from './sources/csv';
 import { GeoJsonSource } from './sources/geojson';
 import { VaultFrontmatterSource } from './sources/vault-frontmatter';
+import { renderInlineMap } from './view/inline-map';
 import { LifeMapView } from './view/map-view';
 
 export default class LifeMapPlugin extends Plugin {
@@ -19,6 +20,8 @@ export default class LifeMapPlugin extends Plugin {
 	service!: FeatureService;
 	results: LoadResult[] = [];
 	api!: LifeMapApi;
+	/** Number of ```life-map``` blocks currently holding a WebGL context. */
+	inlineMapCount = 0;
 
 	private refreshSequence = 0;
 	private autoRefreshTimer: number | null = null;
@@ -72,6 +75,10 @@ export default class LifeMapPlugin extends Plugin {
 			callback: () => {
 				void this.exportMarkdown();
 			},
+		});
+
+		this.registerMarkdownCodeBlockProcessor('life-map', (source, el, ctx) => {
+			return renderInlineMap(this, source, el, ctx);
 		});
 
 		this.addSettingTab(new LifeMapSettingsTab(this.app, this));
