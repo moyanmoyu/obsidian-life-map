@@ -17,6 +17,7 @@ import { CLUSTER_COLOR, POINT_DEFAULT_COLOR } from '../constants';
 import { fromWGS84, toWGS84 } from '../core/coords';
 import type { Feature } from '../core/model';
 import type LifeMapPlugin from '../main';
+import type { MapViewIntent } from '../main';
 import { readCoords } from '../sources/vault-frontmatter';
 
 const SOURCE_ID = 'life-map-inline-points';
@@ -106,16 +107,44 @@ export function renderInlineMap(
 	plugin.inlineMapCount++;
 
 	const mapEl = container.createDiv({ cls: 'life-map-inline-map' });
+	let map: MapLibreMap | null = null;
+
 	const openButton = container.createEl('button', {
 		cls: 'life-map-inline-open',
 		text: '打开完整地图',
 	});
 	openButton.addEventListener('click', (event) => {
 		event.stopPropagation();
-		void plugin.activateView();
+		void plugin.activateView(buildIntent());
 	});
 
-	let map: MapLibreMap | null = null;
+	/** Carry the inline map's current view and tag into the full map view. */
+	const buildIntent = (): MapViewIntent => {
+		const intent: MapViewIntent = {};
+		if (options.tag) intent.tag = options.tag;
+		if (!map) return intent;
+
+		const settings = plugin.settings;
+		const basemap = resolveBasemap(settings, plugin.registry.getBasemaps());
+		const targetSys = basemap ? basemapCoordSys(basemap, settings.customXyzCoordSys) : 'WGS84';
+
+		const uiCenter = map.getCenter();
+		intent.center = toWGS84(uiCenter.lat, uiCenter.lng, targetSys);
+		intent.zoom = map.getZoom();
+
+		const bounds = map.getBounds();
+		const northWest = toWGS84(bounds.getNorth(), bounds.getWest(), targetSys);
+		const southEast = toWGS84(bounds.getSouth(), bounds.getEast(), targetSys);
+		const padLat = Math.abs(northWest[0] - southEast[0]) * 0.05;
+		const padLng = Math.abs(southEast[1] - northWest[1]) * 0.05;
+		intent.bbox = [
+			Math.min(northWest[1], southEast[1]) - padLng,
+			Math.min(northWest[0], southEast[0]) - padLat,
+			Math.max(northWest[1], southEast[1]) + padLng,
+			Math.max(northWest[0], southEast[0]) + padLat,
+		];
+		return intent;
+	};
 	let observer: ResizeObserver | null = null;
 	let themeRef: EventRef | null = null;
 	let destroyed = false;

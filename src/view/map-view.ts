@@ -20,6 +20,7 @@ import {
 import { fromWGS84 } from '../core/coords';
 import type { Feature, PhotoRef } from '../core/model';
 import type LifeMapPlugin from '../main';
+import type { MapViewIntent } from '../main';
 import { Sidebar } from './sidebar';
 
 interface RenderPoint {
@@ -36,6 +37,7 @@ export class LifeMapView extends ItemView {
 	private reopenButton!: HTMLElement;
 	private bannerEl!: HTMLElement;
 	private chipsEl!: HTMLElement;
+	private filterBarEl!: HTMLElement;
 	private statusEl!: HTMLElement;
 	private emptyEl!: HTMLElement;
 	private searchInput!: HTMLInputElement;
@@ -53,6 +55,8 @@ export class LifeMapView extends ItemView {
 	private resizeObserver: ResizeObserver | null = null;
 	private popup: MapLibrePopup | null = null;
 	private activeIndex: number | null = null;
+	private tagFilter: string | null = null;
+	private bboxFilter: [number, number, number, number] | null = null;
 	private colorBySource = new Map<string, string>();
 	private haystackCache = new WeakMap<Feature, string>();
 	private lightboxEl: HTMLElement | null = null;
@@ -102,6 +106,7 @@ export class LifeMapView extends ItemView {
 		this.buildRefreshButton(toolbar);
 
 		this.chipsEl = main.createDiv({ cls: 'life-map-chips' });
+		this.filterBarEl = main.createDiv({ cls: 'life-map-extra-filters' });
 		this.statusEl = main.createDiv({ cls: 'life-map-status' });
 
 		const canvasWrap = main.createDiv({ cls: 'life-map-canvas-wrap' });
@@ -139,6 +144,12 @@ export class LifeMapView extends ItemView {
 		await this.plugin.refreshFeatures();
 		this.initMap();
 		this.render();
+
+		const pending = this.plugin.pendingIntent;
+		if (pending) {
+			this.plugin.pendingIntent = null;
+			this.applyIntent(pending);
+		}
 	}
 
 	async onClose(): Promise<void> {
@@ -529,6 +540,14 @@ export class LifeMapView extends ItemView {
 			if (!this.searchHaystack(feature).includes(this.search.toLowerCase())) return false;
 		}
 
+		if (this.tagFilter && !feature.tags.includes(this.tagFilter)) return false;
+
+		if (this.bboxFilter) {
+			const [minLng, minLat, maxLng, maxLat] = this.bboxFilter;
+			if (feature.lng < minLng || feature.lng > maxLng) return false;
+			if (feature.lat < minLat || feature.lat > maxLat) return false;
+		}
+
 		if (this.from || this.to) {
 			const time = feature.time ? Date.parse(feature.time) : NaN;
 			if (!Number.isFinite(time)) return false;
@@ -634,6 +653,61 @@ export class LifeMapView extends ItemView {
 		this.lightboxCaption = null;
 		this.lightboxCounter = null;
 		this.lightboxPhotos = [];
+	}
+
+	/** Apply a filter/zoom context handed over by an inline map. */
+	applyIntent(intent: MapViewIntent): void {
+		this.tagFilter = intent.tag ?? null;
+		this.bboxFilter = intent.bbox ?? null;
+		this.renderExtraFilters();
+
+		if (this.map && intent.center) {
+			const settings = this.plugin.settings;
+			const basemap = resolveBasemap(settings, this.plugin.registry.getBasemaps());
+			const targetSys = basemap ? basemapCoordSys(basemap, settings.customXyzCoordSys) : 'WGS84';
+			const [lat, lng] = fromWGS84(intent.center[0], intent.center[1], targetSys);
+			this.map.jumpTo({
+				center: [lng, lat],
+				zoom: intent.zoom ?? this.map.getZoom(),
+			});
+		}
+
+		this.repaint();
+	}
+
+	private renderExtraFilters(): void {
+		if (!this.filterBarEl) return;
+		this.filterBarEl.empty();
+
+		if (this.tagFilter) {
+			const chip = this.filterBarEl.createEl('button', { cls: 'life-map-extra-filter' });
+			chip.createSpan({ text: `标签：${this.tagFilter}` });
+			const remove = chip.createSpan({ cls: 'life-map-extra-filter-close', text: '×' });
+			remove.addEventListener('click', (event) => {
+				event.stopPropagation();
+				this.tagFilter = null;
+				this.renderExtraFilters();
+				this.repaint();
+			});
+		}
+
+		if (this.bboxFilter) {
+			const chip = this.filterBarEl.createEl('button', { cls: 'life-map-extra-filter' });
+			chip.createSpan({ text: '范围：来自内嵌地图的视野' });
+			const remove = chip.createSpan({ cls: 'life-map-extra-filter-close', text: '×' });
+			remove.addEventListener('click', (event) => {
+				event.stopPropagation();
+				this.bboxFilter = null;
+				this.renderExtraFilters();
+				this.repaint();
+			});
+		}
+	}
+
+	private clearExtraFilters(): void {
+		this.tagFilter = null;
+		this.bboxFilter = null;
+		this.renderExtraFilters();
 	}
 
 	private selectFeature(index: number): void {
@@ -767,6 +841,7 @@ export class LifeMapView extends ItemView {
 			if (this.fromInput) this.fromInput.value = '';
 			if (this.toInput) this.toInput.value = '';
 			this.hiddenSources.clear();
+			this.clearExtraFilters();
 			this.renderChips();
 			this.repaint();
 		});

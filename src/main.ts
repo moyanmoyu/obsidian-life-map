@@ -14,6 +14,19 @@ import { VaultFrontmatterSource } from './sources/vault-frontmatter';
 import { renderInlineMap } from './view/inline-map';
 import { LifeMapView } from './view/map-view';
 
+/**
+ * Context handed from an inline map (or any future entry point) to the full
+ * map view. Coordinates are WGS-84.
+ */
+export interface MapViewIntent {
+	center?: [number, number];
+	zoom?: number;
+	/** Only show features carrying this tag */
+	tag?: string;
+	/** Only show features inside this WGS-84 bbox: [minLng, minLat, maxLng, maxLat] */
+	bbox?: [number, number, number, number];
+}
+
 export default class LifeMapPlugin extends Plugin {
 	settings!: LifeMapSettings;
 	registry = new Registry();
@@ -22,6 +35,8 @@ export default class LifeMapPlugin extends Plugin {
 	api!: LifeMapApi;
 	/** Number of ```life-map``` blocks currently holding a WebGL context. */
 	inlineMapCount = 0;
+	/** Intent consumed by the view when it is created. */
+	pendingIntent: MapViewIntent | null = null;
 
 	private refreshSequence = 0;
 	private autoRefreshTimer: number | null = null;
@@ -135,16 +150,18 @@ export default class LifeMapPlugin extends Plugin {
 		}
 	}
 
-	async activateView(): Promise<void> {
+	async activateView(intent?: MapViewIntent): Promise<void> {
 		const { workspace } = this.app;
 		const existing = workspace.getLeavesOfType(VIEW_TYPE_LIFE_MAP);
-		let leaf: WorkspaceLeaf;
 		if (existing.length > 0) {
-			leaf = existing[0];
-		} else {
-			leaf = workspace.getLeaf(true);
-			await leaf.setViewState({ type: VIEW_TYPE_LIFE_MAP, active: true });
+			const view = existing[0].view;
+			if (intent && view instanceof LifeMapView) view.applyIntent(intent);
+			workspace.revealLeaf(existing[0]);
+			return;
 		}
+		if (intent) this.pendingIntent = intent;
+		const leaf = workspace.getLeaf(true);
+		await leaf.setViewState({ type: VIEW_TYPE_LIFE_MAP, active: true });
 		workspace.revealLeaf(leaf);
 	}
 
