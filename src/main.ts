@@ -6,8 +6,10 @@ import type { Feature } from './core/model';
 import { Registry } from './core/registry';
 import type { LoadResult } from './core/source';
 import { FeatureService } from './service';
+import { buildPlaceNoteContent, sanitizeFileName, type PlaceNoteValues } from './place-template';
 import { DEFAULT_SETTINGS, type LifeMapSettings } from './settings';
 import { LifeMapSettingsTab } from './settings-tab';
+import { NewPlaceModal } from './ui/new-place-modal';
 import { CsvSource } from './sources/csv';
 import { GeoJsonSource } from './sources/geojson';
 import { VaultFrontmatterSource } from './sources/vault-frontmatter';
@@ -77,6 +79,11 @@ export default class LifeMapPlugin extends Plugin {
 			},
 		});
 
+		this.addCommand({
+			id: 'new-place-note',
+			name: '新建地点笔记',
+			callback: () => this.openNewPlaceModal(),
+		});
 		this.addCommand({
 			id: 'export-geojson',
 			name: '导出当前视图为 GeoJSON',
@@ -163,6 +170,41 @@ export default class LifeMapPlugin extends Plugin {
 		const leaf = workspace.getLeaf(true);
 		await leaf.setViewState({ type: VIEW_TYPE_LIFE_MAP, active: true });
 		workspace.revealLeaf(leaf);
+	}
+
+	openNewPlaceModal(): void {
+		new NewPlaceModal(this.app, this.settings, (values) => {
+			void this.createPlaceNote(values);
+		}).open();
+	}
+
+	async createPlaceNote(values: PlaceNoteValues): Promise<void> {
+		const folder = this.settings.newNoteFolder.trim().replace(/^\/+|\/+$/g, '');
+		if (folder && !this.app.vault.getAbstractFileByPath(folder)) {
+			try {
+				await this.app.vault.createFolder(folder);
+			} catch (error) {
+				console.warn('[life-map] could not create folder', error);
+			}
+		}
+
+		const base = sanitizeFileName(values.name);
+		let path = folder ? `${folder}/${base}.md` : `${base}.md`;
+		let index = 2;
+		while (this.app.vault.getAbstractFileByPath(path)) {
+			path = folder ? `${folder}/${base}-${index}.md` : `${base}-${index}.md`;
+			index++;
+		}
+
+		try {
+			const file = await this.app.vault.create(path, buildPlaceNoteContent(values));
+			await this.app.workspace.getLeaf(true).openFile(file);
+			new Notice(`已创建 ${path}`);
+			this.scheduleAutoRefresh(300);
+		} catch (error) {
+			console.error('[life-map] create note failed', error);
+			new Notice('创建失败，请查看控制台');
+		}
 	}
 
 	/** Features currently rendered in the first open map view (filters applied). */

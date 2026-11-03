@@ -171,6 +171,16 @@ export class LifeMapSettingsTab extends PluginSettingTab {
 				});
 			});
 
+		this.textField(
+			parent,
+			'新建笔记位置',
+			'「新建地点笔记」命令把笔记创建到这个目录；留空 = 库根目录',
+			this.plugin.settings.newNoteFolder,
+			(value) => {
+				this.plugin.settings.newNoteFolder = value.trim();
+			}
+		);
+
 		const details = parent.createEl('details', { cls: 'life-map-advanced' });
 		details.createEl('summary', { text: '高级：属性名映射' });
 		details.createEl('p', {

@@ -81,6 +81,8 @@ export interface LifeMapSettings {
 	enabledSources: string[];
 	vault: VaultSourceSettings;
 	httpSources: HttpSourceConfig[];
+	/** Folder for notes created by "新建地点笔记" (empty = vault root) */
+	newNoteFolder: string;
 	/** Sidebar (list / photo wall / timeline) */
 	sidebarOpen: boolean;
 	sidebarTab: SidebarTab;
@@ -99,6 +101,7 @@ export const DEFAULT_SETTINGS: LifeMapSettings = {
 	showAttribution: true,
 	followTheme: true,
 	enabledSources: ['vault', 'geojson', 'csv'],
+	newNoteFolder: '10-生活/地点',
 	sidebarOpen: true,
 	sidebarTab: 'list',
 	clusterRadius: 48,
