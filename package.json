@@ -1,0 +1,32 @@
+{
+  "name": "obsidian-life-map",
+  "version": "0.2.0",
+  "description": "Generic map view for Obsidian: pluggable data sources, China-friendly basemaps, clustered markers.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc --noEmit && node esbuild.config.mjs production",
+    "typecheck": "tsc --noEmit",
+    "deploy": "node scripts/deploy.mjs",
+    "test": "esbuild scripts/smoke.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/smoke.cjs --alias:obsidian=./test/obsidian-stub.ts --log-level=error && node node_modules/.cache/smoke.cjs",
+    "bench": "esbuild scripts/bench.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/bench.cjs --log-level=error && node node_modules/.cache/bench.cjs",
+    "fixture": "esbuild scripts/make-fixture.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/fixture.cjs --log-level=error && node node_modules/.cache/fixture.cjs"
+  },
+  "keywords": [
+    "obsidian",
+    "map",
+    "maplibre",
+    "geojson",
+    "poi"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "esbuild": "^0.21.5",
+    "obsidian": "^1.5.7",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "maplibre-gl": "^4.7.1"
+  }
+}
