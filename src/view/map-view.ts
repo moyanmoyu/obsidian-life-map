@@ -23,6 +23,7 @@ import { groupPlaces, type PlaceGroup } from '../core/places';
 import type LifeMapPlugin from '../main';
 import type { MapViewIntent } from '../main';
 import { Sidebar } from './sidebar';
+import { ConfirmDeleteModal } from '../ui/confirm-delete';
 
 export class LifeMapView extends ItemView {
 	private readonly plugin: LifeMapPlugin;
@@ -505,8 +506,22 @@ export class LifeMapView extends ItemView {
 			head.createSpan({ cls: 'life-map-visit-name', text: visit.name });
 		}
 		if (visit.link) {
-			const button = head.createEl('button', { cls: 'life-map-popup-button', text: '打开' });
-			button.addEventListener('click', () => this.openLink(visit.link as string));
+			const actions = head.createDiv({ cls: 'life-map-visit-actions' });
+			const open = actions.createEl('button', { cls: 'life-map-popup-button', text: '打开' });
+			open.addEventListener('click', () => this.openLink(visit.link as string));
+
+			// Only vault notes can be deleted; file/API sources are read-only.
+			const file = this.app.vault.getAbstractFileByPath(visit.link);
+			if (file instanceof TFile) {
+				const remove = actions.createEl('button', {
+					cls: 'life-map-popup-button is-danger',
+					text: '删除',
+				});
+				remove.addEventListener('click', (event) => {
+					event.stopPropagation();
+					this.confirmDeleteVisit(visit, file);
+				});
+			}
 		}
 
 		if (visit.photos.length > 0) {
@@ -523,6 +538,25 @@ export class LifeMapView extends ItemView {
 		}
 
 		return root;
+	}
+
+	private confirmDeleteVisit(visit: Feature, file: TFile): void {
+		new ConfirmDeleteModal(this.app, {
+			title: `删除「${visit.name ?? file.basename}」？`,
+			message: '这条笔记会移入回收站（不是永久删除），可以在回收站里恢复。只影响这一条记录。',
+			confirmLabel: '移入回收站',
+			onConfirm: async () => {
+				try {
+					await this.app.fileManager.trashFile(file);
+					new Notice(`已删除 ${file.path}`);
+					this.popup?.remove();
+					await this.plugin.refreshFeatures();
+				} catch (error) {
+					console.error('[life-map] delete failed', error);
+					new Notice('删除失败，请查看控制台');
+				}
+			},
+		}).open();
 	}
 
 	private openLink(link: string): void {

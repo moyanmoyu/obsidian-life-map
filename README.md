@@ -205,6 +205,15 @@ API：`registerSource` / `unregisterSource` / `registerBasemap` / `refresh` / `g
 - 建议点位数 ≤ 20,000（再多需要瓦片化/预聚合）
 - 移动端未经充分测试
 
+## 删除记录
+
+地点弹窗里每条到访记录右侧有「删除」按钮：
+
+- 只会删除 **vault 内的 Markdown 笔记**，并移入回收站（可在 Obsidian / 系统回收站恢复）
+- 删除前会弹二次确认，避免误触
+- GeoJSON / CSV / HTTP 数据源是只读的，不会显示删除按钮
+- 删除后地图、侧栏、统计会自动刷新
+
 ## 命令
 
 | 命令 | 作用 |
