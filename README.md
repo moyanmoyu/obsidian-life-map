@@ -1,5 +1,7 @@
 # Life Map
 
+简体中文 · [English](README.en.md)
+
 > 仓库：https://github.com/moyanmoyu/obsidian-life-map
 
 一个**通用的 Obsidian 地图视图**：把任意来源的地点数据画到一张国内可用的地图上。
@@ -314,34 +316,13 @@ API：`registerSource` / `unregisterSource` / `registerBasemap` / `refresh` / `g
 - 插件**不提供任何地图数据**，底图由用户自行选择并遵守对应厂商条款
 - 天地图瓦片不得缓存后二次分发，且不可移除署名
 
-## 开发
+## 开发与发布
 
-```bash
-npm install
-npm run dev        # 监听构建
-npm run typecheck  # 类型检查
-npm run test       # 核心逻辑冒烟测试（坐标转换 / JSONPath / CSV）
-npm run bench      # 数据管线基准（1k / 5k / 20k / 50k 点）
-npm run fixture -- 5000 /path/to/vault/bench.geojson  # 生成压测数据
-npm run build      # 生产构建
-npm run deploy -- /path/to/vault
-```
+改代码、跑测试、发版看这两份文档：
 
-## 官网（Cloudflare Pages）
-
-`site/` 是纯静态门户站，可直接部署到 Cloudflare Pages（免费、无限带宽）。部署步骤见 [site/README.md](site/README.md)。
-
-## 发布时不要带上你的 Key
-
-插件运行时把设置存在 vault 里：`.obsidian/plugins/life-map/data.json`，其中包含天地图 tk、HTTP 源的 token 等。**这个文件不在插件仓库里**，所以正常发版不会带上它。
-
-保险措施：
-
-- `.gitignore` 忽略 `data.json` 与 `*.zip`
-- `npm run package` 只打包白名单里的三个文件（`manifest.json` / `main.js` / `styles.css`），并显式拒绝 `data.json`
-- GitHub Release 由 CI 上传这三个文件，不包含任何设置
-
-⚠️ 手动分享时不要直接压缩 `.obsidian/plugins/life-map/` 整个目录，用 `npm run package`。
+- [开发说明](docs/DEVELOPMENT.md)：环境、常用命令、目录结构、测试与已知坑
+- [发版说明](docs/RELEASING.md)：版本一致性、发布流程、**如何避免把地图 Key 发出去**
+- [官网部署](site/README.md)：`site/` 静态门户站 + Cloudflare Pages
 
 ## License
 
