@@ -325,6 +325,10 @@ npm run build      # 生产构建
 npm run deploy -- /path/to/vault
 ```
 
+## 官网（Cloudflare Pages）
+
+`site/` 是纯静态门户站，可直接部署到 Cloudflare Pages（免费、无限带宽）。部署步骤见 [site/README.md](site/README.md)。
+
 ## 发布时不要带上你的 Key
 
 插件运行时把设置存在 vault 里：`.obsidian/plugins/life-map/data.json`，其中包含天地图 tk、HTTP 源的 token 等。**这个文件不在插件仓库里**，所以正常发版不会带上它。

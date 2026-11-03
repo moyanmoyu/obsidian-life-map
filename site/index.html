@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Life Map — 把你的笔记，铺在地图上</title>
+<meta name="description" content="Life Map 是一个 Obsidian 地图插件：把笔记、GeoJSON、CSV 和任意 JSON API 的地点画到一张国内可用的地图上，支持按地点聚合、侧栏、内嵌地图与导出。" />
+<meta property="og:title" content="Life Map — 把你的笔记，铺在地图上" />
+<meta property="og:description" content="通用 Obsidian 地图视图：四类数据源、地点聚合、内嵌地图、天地图底图。" />
+<meta property="og:type" content="website" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="#top">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z" fill="currentColor"/></svg>
+    <span>Life Map</span>
+  </a>
+  <nav>
+    <a href="#features">功能</a>
+    <a href="#how">怎么用</a>
+    <a href="#install">安装</a>
+    <a href="#faq">FAQ</a>
+    <a class="ghost" href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Obsidian 插件 · 中国地图友好</p>
+      <h1>把你的笔记，<br />铺在地图上</h1>
+      <p class="lead">笔记属性、GeoJSON、CSV、任意 JSON API——四类数据源接进来，一个标记就是一个地点，每次到访都是它的子记录。</p>
+      <div class="cta">
+        <a class="button primary" href="#install">安装插件</a>
+        <a class="button" href="#features">看看功能</a>
+      </div>
+      <ul class="badges">
+        <li>无需服务器</li>
+        <li>无遥测</li>
+        <li>天地图 / 高德 / OpenFreeMap</li>
+      </ul>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="mock">
+        <svg class="mock-map" viewBox="0 0 600 420" preserveAspectRatio="none">
+          <rect width="600" height="420" fill="var(--map-bg)" />
+          <path d="M-20 120 H620" stroke="var(--map-road)" stroke-width="14" />
+          <path d="M-20 300 H620" stroke="var(--map-road)" stroke-width="10" />
+          <path d="M150 -20 V440" stroke="var(--map-road)" stroke-width="12" />
+          <path d="M430 -20 V440" stroke="var(--map-road)" stroke-width="8" />
+          <path d="M250 300 L420 120" stroke="var(--map-road)" stroke-width="7" />
+          <circle cx="70" cy="60" r="46" fill="var(--map-green)" />
+          <circle cx="520" cy="360" r="60" fill="var(--map-green)" />
+          <rect x="300" y="330" width="90" height="50" fill="var(--map-building)" />
+          <rect x="180" y="150" width="70" height="40" fill="var(--map-building)" />
+        </svg>
+        <span class="pin" style="left:52%;top:46%"></span>
+        <div class="mock-popup">
+          <strong>老张牛肉面</strong>
+          <span class="meta">3 次到访 · 最近 2026-03-02</span>
+          <div class="visit"><i></i>2026-03-02<span>打开</span></div>
+          <div class="visit"><i></i>2025-11-18<span>打开</span></div>
+        </div>
+        <div class="mock-side">
+          <div class="side-tab on">地点</div><div class="side-tab">照片</div><div class="side-tab">时间轴</div>
+          <div class="row"><b></b><span>老张牛肉面<em>3 次到访</em></span></div>
+          <div class="row"><b></b><span>西湖边骑车<em>1 次到访</em></span></div>
+          <div class="row"><b></b><span>外滩夜景<em>2 次到访</em></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="section">
+    <h2>该有的都有</h2>
+    <p class="section-lead">不是"能画个地图"，而是把地点真正当成数据来管理。</p>
+    <div class="grid">
+      <article class="card"><h3>四类数据源</h3><p>笔记 frontmatter、GeoJSON、CSV，以及用 JSONPath 声明的任意 JSON API。不写代码。</p></article>
+      <article class="card"><h3>按地点聚合</h3><p>同一坐标的多条笔记合并成一个标记，每次到访作为子记录，可单独打开或删除。</p></article>
+      <article class="card"><h3>侧栏三视图</h3><p>地点列表、照片墙、时间轴，点条目地图自动飞过去。</p></article>
+      <article class="card"><h3>内嵌地图</h3><p>在笔记里写一个 <code>life-map</code> 代码块，就地渲染小地图。</p></article>
+      <article class="card"><h3>国内底图</h3><p>天地图自动降级、高德瓦片预设、自定义 XYZ，坐标系自动转换，点位不错位。</p></article>
+      <article class="card"><h3>数据不锁死</h3><p>导出 GeoJSON 或 Markdown 清单，筛选后的结果一键带走。</p></article>
+    </div>
+  </section>
+
+  <section id="how" class="section alt">
+    <h2>三步开始</h2>
+    <ol class="steps">
+      <li><b>装插件</b><span>把三个文件放进 <code>.obsidian/plugins/life-map</code>，在 Obsidian 里启用。</span></li>
+      <li><b>加坐标</b><span>笔记 frontmatter 写 <code>coordinates: ["40.0496", "116.2807"]</code>，或者用命令「新建地点笔记」。</span></li>
+      <li><b>打开地图</b><span>左侧栏点图标，点位、聚合、侧栏立刻出现。</span></li>
+    </ol>
+  </section>
+
+  <section id="install" class="section">
+    <h2>安装</h2>
+    <div class="install-grid">
+      <div class="install-card">
+        <h3>手动安装（当前可用）</h3>
+        <ol>
+          <li>从 Release 下载 <code>life-map-x.y.z.zip</code></li>
+          <li>解压到 <code>&lt;你的库&gt;/.obsidian/plugins/life-map/</code></li>
+          <li>Obsidian → 设置 → 第三方插件 → 启用 Life Map</li>
+        </ol>
+      </div>
+      <div class="install-card">
+        <h3>社区目录（准备中）</h3>
+        <p>上架后可在「社区插件」里搜索安装，无需手动放文件。</p>
+        <p class="muted">最低 Obsidian 1.5.0 · 桌面端与移动端</p>
+      </div>
+    </div>
+    <div class="note">
+      <strong>提示：</strong>插件不含任何地图 Key。天地图需要你自行申请 tk 填入设置；不填会自动降级到备用底图。
+    </div>
+  </section>
+
+  <section id="faq" class="section alt">
+    <h2>常见问题</h2>
+    <details><summary>和高德地图有什么差别？</summary><p>底图观感可以换成高德瓦片，但拿不到高德的 POI 搜索、路线规划——那些需要高德 JS API，属于另一种架构。</p></details>
+    <details><summary>国外地点能显示吗？</summary><p>能。境外坐标自动跳过 GCJ-02 偏移，底图用 OpenFreeMap 或全球瓦片即可；天地图以中国为主。</p></details>
+    <details><summary>会上传我的数据吗？</summary><p>不会。没有遥测；联网只发生在加载你选择的底图，以及你自己配置的 HTTP 数据源。</p></details>
+    <details><summary>删除笔记会永久消失吗？</summary><p>不会。删除走 Obsidian 的回收站，可恢复；每次删除都有二次确认。</p></details>
+  </section>
+
+  <section class="cta-final">
+    <h2>把去过的地方，变成可以翻的地图</h2>
+    <a class="button primary" href="#install">开始安装</a>
+  </section>
+</main>
+
+<footer>
+  <span>Life Map · MIT</span>
+  <span>底图版权归各厂商所有 · 插件不提供地图数据</span>
+</footer>
+</body>
+</html>
