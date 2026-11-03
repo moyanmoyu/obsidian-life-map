@@ -49,7 +49,7 @@ export class LifeMapSettingsTab extends PluginSettingTab {
 			.addButton((button) =>
 				button.setButtonText('使用高德底图').onClick(async () => {
 					this.plugin.settings.customXyzUrl =
-						'https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}';
+						'https://wprd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scl=1&style=7&x={x}&y={y}&z={z}';
 					this.plugin.settings.customXyzCoordSys = 'GCJ02';
 					this.plugin.settings.customXyzAttribution = '© 高德地图';
 					this.plugin.settings.basemapId = 'custom-xyz';

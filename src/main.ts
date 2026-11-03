@@ -127,6 +127,12 @@ export default class LifeMapPlugin extends Plugin {
 			httpSources: data?.httpSources ?? [],
 			enabledSources: data?.enabledSources ?? DEFAULT_SETTINGS.enabledSources,
 		};
+
+		// Migration: the first 高德 preset used `webrd` (road-only tiles, no POI
+		// labels). `wprd` is the full basemap with building/POI labels.
+		if (this.settings.customXyzUrl.includes('webrd')) {
+			this.settings.customXyzUrl = this.settings.customXyzUrl.replace(/webrd/g, 'wprd');
+		}
 	}
 
 	async saveSettings(): Promise<void> {
