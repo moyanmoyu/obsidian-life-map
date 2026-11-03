@@ -193,7 +193,31 @@ export function renderInlineMap(
 		return { points, extraOwn };
 	};
 
+	const showFailure = (message: string, retry?: () => void): void => {
+		mapEl.empty();
+		const box = container.createDiv({ cls: 'life-map-inline-limit' });
+		box.createDiv({ text: message });
+		if (retry) {
+			const button = box.createEl('button', { cls: 'life-map-inline-retry', text: '重试' });
+			button.addEventListener('click', (event) => {
+				event.stopPropagation();
+				box.remove();
+				retry();
+			});
+		}
+	};
+
 	const addData = () => {
+		if (!map) return;
+		try {
+			populate();
+		} catch (error) {
+			console.error('[life-map] inline map data failed', error);
+			showFailure('数据渲染失败，点此查看控制台详情', () => addData());
+		}
+	};
+
+	const populate = () => {
 		if (!map) return;
 		const settings = plugin.settings;
 		const basemap = resolveBasemap(settings, plugin.registry.getBasemaps());
@@ -312,6 +336,20 @@ export function renderInlineMap(
 
 	const create = () => {
 		if (destroyed) return;
+		try {
+			createMap();
+		} catch (error) {
+			console.error('[life-map] inline map init failed', error);
+			plugin.inlineMapCount = Math.max(0, plugin.inlineMapCount - 1);
+			showFailure('地图初始化失败（可能是 WebGL 上下文被用尽），关闭其他笔记后重试', () => {
+				plugin.inlineMapCount++;
+				create();
+			});
+		}
+	};
+
+	const createMap = () => {
+		if (destroyed) return;
 		const basemap = resolveBasemap(plugin.settings, plugin.registry.getBasemaps());
 		if (!basemap) {
 			container.createDiv({ cls: 'life-map-inline-limit', text: '没有可用的底图' });
@@ -346,6 +384,11 @@ export function renderInlineMap(
 		map.on('error', (event) => {
 			console.warn('[life-map] inline map error', event?.error ?? event);
 		});
+		map.on('webglcontextlost', () => {
+			console.warn('[life-map] inline map WebGL context lost');
+			showFailure('WebGL 上下文丢失，重新打开笔记即可恢复');
+		});
+		console.info('[life-map] inline map created', { active: plugin.inlineMapCount });
 
 		observer = new ResizeObserver(() => map?.resize());
 		observer.observe(container);
