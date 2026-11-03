@@ -16,6 +16,7 @@ import { resolveBasemap } from '../basemaps/common';
 import { CLUSTER_COLOR, POINT_DEFAULT_COLOR } from '../constants';
 import { fromWGS84, toWGS84 } from '../core/coords';
 import type { Feature } from '../core/model';
+import { groupPlaces } from '../core/places';
 import type LifeMapPlugin from '../main';
 import type { MapViewIntent } from '../main';
 import { readCoords } from '../sources/vault-frontmatter';
@@ -171,16 +172,17 @@ export function renderInlineMap(
 			if (collected.length >= options.limit) break;
 		}
 
-		// The note's own POI is usually already in the dataset (vault source).
-		// Mark it as `own` instead of drawing a second marker on top of it.
+		// Aggregate by place: several notes at the same spot become one marker.
+		const places = groupPlaces(collected, new Map());
+
 		let matchedOwn = false;
-		const points = collected.map((feature) => {
-			const isOwn = feature.link === ctx.sourcePath;
+		const points = places.map((place) => {
+			const isOwn = place.visits.some((visit) => visit.link === ctx.sourcePath);
 			if (isOwn) matchedOwn = true;
 			return {
-				feature,
+				place,
 				own: isOwn,
-				lngLat: fromWGS84(feature.lat, feature.lng, targetSys),
+				lngLat: fromWGS84(place.lat, place.lng, targetSys),
 			};
 		});
 
@@ -231,7 +233,10 @@ export function renderInlineMap(
 				properties: {
 					index,
 					kind: point.own ? 'own' : 'poi',
-					color: point.own ? '#e5484d' : POINT_DEFAULT_COLOR,
+					count: point.place.visits.length,
+					color: point.own
+						? '#e5484d'
+						: point.place.color ?? POINT_DEFAULT_COLOR,
 				},
 			})),
 		};
@@ -297,7 +302,7 @@ export function renderInlineMap(
 			const coordinates = feature.geometry.coordinates as [number, number];
 			const index = Number(feature.properties?.index ?? -1);
 			const point = points[index];
-			const link = point?.feature.link;
+			const link = point?.place.visits[0]?.link;
 
 			// A different note: navigate to it.
 			if (link && link !== ctx.sourcePath) {

@@ -19,14 +19,10 @@ import {
 } from '../constants';
 import { fromWGS84 } from '../core/coords';
 import type { Feature, PhotoRef } from '../core/model';
+import { groupPlaces, type PlaceGroup } from '../core/places';
 import type LifeMapPlugin from '../main';
 import type { MapViewIntent } from '../main';
 import { Sidebar } from './sidebar';
-
-interface RenderPoint {
-	feature: Feature;
-	lngLat: [number, number];
-}
 
 export class LifeMapView extends ItemView {
 	private readonly plugin: LifeMapPlugin;
@@ -44,7 +40,8 @@ export class LifeMapView extends ItemView {
 	private fromInput!: HTMLInputElement;
 	private toInput!: HTMLInputElement;
 
-	private points: RenderPoint[] = [];
+	private places: PlaceGroup[] = [];
+	private placeLngLat: [number, number][] = [];
 	private hiddenSources = new Set<string>();
 	private search = '';
 	private from = '';
@@ -323,27 +320,31 @@ export class LifeMapView extends ItemView {
 		this.colorBySource = new Map<string, string>();
 		for (const result of this.plugin.results) this.colorBySource.set(result.sourceId, result.color);
 
-		this.points = [];
-		const features: Record<string, unknown>[] = [];
-
+		const visible: Feature[] = [];
 		for (const result of this.plugin.results) {
 			if (this.hiddenSources.has(result.sourceId)) continue;
 			for (const feature of result.features) {
-				if (!this.matches(feature)) continue;
-				const [lat, lng] = fromWGS84(feature.lat, feature.lng, targetSys);
-				const index = this.points.length;
-				this.points.push({ feature, lngLat: [lng, lat] });
-				features.push({
-					type: 'Feature',
-					geometry: { type: 'Point', coordinates: [lng, lat] },
-					properties: {
-						index,
-						color: this.colorBySource.get(feature.sourceId) ?? POINT_DEFAULT_COLOR,
-						hasPhotos: feature.photos.length > 0,
-					},
-				});
+				if (this.matches(feature)) visible.push(feature);
 			}
 		}
+
+		// One marker per place; every note at that place becomes a sub-record.
+		this.places = groupPlaces(visible, this.colorBySource);
+		this.placeLngLat = [];
+		const features: Record<string, unknown>[] = this.places.map((place, index) => {
+			const [lat, lng] = fromWGS84(place.lat, place.lng, targetSys);
+			this.placeLngLat.push([lng, lat]);
+			return {
+				type: 'Feature',
+				geometry: { type: 'Point', coordinates: [lng, lat] },
+				properties: {
+					place: index,
+					count: place.visits.length,
+					color: place.color ?? POINT_DEFAULT_COLOR,
+					hasPhotos: place.photos.length > 0,
+				},
+			};
+		});
 
 		const data = { type: 'FeatureCollection', features };
 		const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
@@ -353,7 +354,7 @@ export class LifeMapView extends ItemView {
 			this.addLayers(data);
 		}
 
-		this.updateEmpty(features.length);
+		this.updateEmpty(this.places.length);
 		this.updateStatus();
 		this.refreshSidebar();
 	}
@@ -417,9 +418,9 @@ export class LifeMapView extends ItemView {
 		map.on('click', LAYER_POINTS, (event: MapLayerMouseEvent) => {
 			const feature = event.features?.[0];
 			if (!feature || feature.geometry.type !== 'Point') return;
-			const index = Number(feature.properties?.index);
+			const index = Number(feature.properties?.place);
 			if (!Number.isFinite(index)) return;
-			this.showPopup(index, feature.geometry.coordinates as [number, number]);
+			this.showPlacePopup(index, feature.geometry.coordinates as [number, number]);
 		});
 
 		map.on('mouseenter', LAYER_POINTS, () => {
@@ -436,15 +437,50 @@ export class LifeMapView extends ItemView {
 		});
 	}
 
-	private showPopup(index: number, lngLat: [number, number]): void {
-		const point = this.points[index];
+	/** Popup for a place: header plus every visit as a sub-record. */
+	private showPlacePopup(index: number, lngLat: [number, number]): void {
+		const place = this.places[index];
 		const map = this.map;
-		if (!point || !map) return;
+		if (!place || !map) return;
 
 		this.popup?.remove();
-		const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '320px', offset: 14 })
+
+		const content = document.createElement('div');
+		content.addClass('life-map-popup');
+		content.createDiv({ cls: 'life-map-popup-title', text: place.name });
+
+		const meta: string[] = [];
+		if (place.visits.length > 1) meta.push(`${place.visits.length} 次到访`);
+		if (place.latest) meta.push(this.formatTime(place.latest));
+		if (place.category) meta.push(place.category);
+		for (const tag of place.tags.slice(0, 3)) meta.push(`#${tag}`);
+		if (meta.length > 0) {
+			content.createDiv({ cls: 'life-map-popup-meta', text: meta.join(' · ') });
+		}
+
+		const address = place.visits[0]?.props['address'];
+		if (typeof address === 'string' && address.trim()) {
+			content.createDiv({ cls: 'life-map-popup-address', text: address.trim() });
+		}
+
+		const list = content.createDiv({ cls: 'life-map-visits' });
+		const shown = place.visits.slice(0, 5);
+		shown.forEach((visit, position) => {
+			list.appendChild(this.buildVisitEntry(visit, place, position > 0));
+		});
+		if (place.visits.length > shown.length) {
+			content.createDiv({
+				cls: 'life-map-popup-more',
+				text: `还有 ${place.visits.length - shown.length} 次到访`,
+			});
+		}
+
+		this.activeIndex = index;
+		this.refreshSidebar();
+
+		const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '340px', offset: 14 })
 			.setLngLat(lngLat)
-			.setDOMContent(this.buildPopupContent(point.feature))
+			.setDOMContent(content)
 			.addTo(map);
 		popup.on('close', () => {
 			if (this.popup !== popup) return;
@@ -455,45 +491,35 @@ export class LifeMapView extends ItemView {
 		this.popup = popup;
 	}
 
-	private buildPopupContent(feature: Feature): HTMLElement {
+	private buildVisitEntry(visit: Feature, place: PlaceGroup, separated: boolean): HTMLElement {
 		const root = document.createElement('div');
-		root.addClass('life-map-popup');
+		root.addClass('life-map-visit');
+		if (separated) root.addClass('is-separated');
 
-		root.createDiv({ cls: 'life-map-popup-title', text: feature.name ?? '未命名地点' });
-
-		const meta: string[] = [];
-		if (feature.time) meta.push(this.formatTime(feature.time));
-		if (feature.category) meta.push(feature.category);
-		for (const tag of feature.tags.slice(0, 4)) meta.push(`#${tag}`);
-		if (meta.length > 0) {
-			root.createDiv({ cls: 'life-map-popup-meta', text: meta.join(' · ') });
+		const head = root.createDiv({ cls: 'life-map-visit-head' });
+		head.createSpan({
+			cls: 'life-map-visit-date',
+			text: visit.time ? this.formatTime(visit.time) : '未记录时间',
+		});
+		if (visit.name && visit.name !== place.name) {
+			head.createSpan({ cls: 'life-map-visit-name', text: visit.name });
+		}
+		if (visit.link) {
+			const button = head.createEl('button', { cls: 'life-map-popup-button', text: '打开' });
+			button.addEventListener('click', () => this.openLink(visit.link as string));
 		}
 
-		const address = feature.props['address'];
-		if (typeof address === 'string' && address.trim()) {
-			root.createDiv({ cls: 'life-map-popup-address', text: address.trim() });
-		}
-
-		if (feature.photos.length > 0) {
+		if (visit.photos.length > 0) {
 			const grid = root.createDiv({
-				cls: feature.photos.length === 1 ? 'life-map-popup-photos is-single' : 'life-map-popup-photos',
+				cls: visit.photos.length === 1 ? 'life-map-popup-photos is-single' : 'life-map-popup-photos',
 			});
-			feature.photos.slice(0, 4).forEach((photo, index) => {
+			visit.photos.slice(0, 3).forEach((photo, photoIndex) => {
 				const img = grid.createEl('img', {
 					cls: 'life-map-popup-photo',
-					attr: { src: photo.url, loading: 'lazy', alt: photo.caption ?? feature.name ?? '' },
+					attr: { src: photo.url, loading: 'lazy', alt: photo.caption ?? place.name },
 				});
-				img.addEventListener('click', () => this.openLightbox(feature.photos, index));
+				img.addEventListener('click', () => this.openLightbox(visit.photos, photoIndex));
 			});
-		}
-
-		if (feature.link) {
-			const actions = root.createDiv({ cls: 'life-map-popup-actions' });
-			const button = actions.createEl('button', {
-				cls: 'life-map-popup-button',
-				text: '打开',
-			});
-			button.addEventListener('click', () => this.openLink(feature.link as string));
 		}
 
 		return root;
@@ -560,7 +586,7 @@ export class LifeMapView extends ItemView {
 
 	/** Features currently rendered (already filtered by search / time / layer toggles). */
 	getVisibleFeatures(): Feature[] {
-		return this.points.map((point) => point.feature);
+		return this.places.flatMap((place) => place.visits);
 	}
 
 	private openLightbox(photos: PhotoRef[], index: number): void {
@@ -711,26 +737,27 @@ export class LifeMapView extends ItemView {
 	}
 
 	private selectFeature(index: number): void {
-		const point = this.points[index];
+		const place = this.places[index];
 		const map = this.map;
-		if (!point || !map) return;
+		const lngLat = this.placeLngLat[index];
+		if (!place || !map || !lngLat) return;
 		this.activeIndex = index;
 		map.easeTo({
-			center: point.lngLat,
-			zoom: Math.max(map.getZoom(), 12),
+			center: lngLat,
+			zoom: Math.max(map.getZoom(), 13),
 			duration: 600,
 		});
-		this.showPopup(index, point.lngLat);
+		this.showPlacePopup(index, lngLat);
 		this.refreshSidebar();
 		if (!this.plugin.settings.sidebarOpen) this.sidebar.setOpen(true);
 	}
 
 	private refreshSidebar(): void {
 		if (!this.sidebar) return;
-		const items = this.points.map((point, index) => ({
-			feature: point.feature,
+		const items = this.places.map((place, index) => ({
+			place,
 			index,
-			color: this.colorBySource.get(point.feature.sourceId) ?? POINT_DEFAULT_COLOR,
+			color: place.color ?? POINT_DEFAULT_COLOR,
 		}));
 		this.sidebar.render(items, this.activeIndex);
 	}
@@ -765,9 +792,9 @@ export class LifeMapView extends ItemView {
 	private updateStatus(): void {
 		if (!this.statusEl) return;
 		const results = this.plugin.results;
-		const total = results.reduce((sum, result) => sum + result.features.length, 0);
+		const visitCount = this.places.reduce((sum, place) => sum + place.visits.length, 0);
 		const errors = results.filter((result) => result.error);
-		const parts = [`${total} 个地点`, `${results.length} 个数据源`];
+		const parts = [`${this.places.length} 个地点`, `${visitCount} 条记录`, `${results.length} 个数据源`];
 		if (errors.length > 0) parts.push(`${errors.length} 个源出错`);
 		this.statusEl.setText(parts.join(' · '));
 		this.statusEl.toggleClass('is-error', errors.length > 0);

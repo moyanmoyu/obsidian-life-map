@@ -1,9 +1,10 @@
 import { setIcon } from 'obsidian';
 import type { Feature } from '../core/model';
+import { flattenVisits, type PlaceGroup } from '../core/places';
 import type { SidebarTab } from '../settings';
 
 export interface SidebarItem {
-	feature: Feature;
+	place: PlaceGroup;
 	index: number;
 	color: string;
 }
@@ -17,7 +18,7 @@ export interface SidebarOptions {
 }
 
 const TABS: { id: SidebarTab; label: string }[] = [
-	{ id: 'list', label: '列表' },
+	{ id: 'list', label: '地点' },
 	{ id: 'photos', label: '照片' },
 	{ id: 'timeline', label: '时间轴' },
 ];
@@ -37,7 +38,10 @@ function monthKey(iso: string | undefined): string {
 	return `${date.getFullYear()} 年 ${date.getMonth() + 1} 月`;
 }
 
-/** Side panel with three presentations of the same filtered point set. */
+/**
+ * Side panel: one row per place in the list/photo tabs, one row per visit in
+ * the timeline tab (a place visited three times shows up three times there).
+ */
 export class Sidebar {
 	private readonly root: HTMLElement;
 	private readonly tabBar: HTMLElement;
@@ -127,11 +131,11 @@ export class Sidebar {
 
 	private renderList(): void {
 		const list = this.body.createDiv({ cls: 'life-map-side-list' });
-		for (const item of this.sorted()) list.appendChild(this.buildRow(item));
+		for (const item of this.sorted()) list.appendChild(this.buildPlaceRow(item));
 	}
 
 	private renderPhotos(): void {
-		const withPhotos = this.sorted().filter((item) => item.feature.photos.length > 0);
+		const withPhotos = this.sorted().filter((item) => item.place.photos.length > 0);
 		if (withPhotos.length === 0) {
 			this.body.createDiv({ cls: 'life-map-side-empty', text: '这些地点还没有照片' });
 			return;
@@ -142,37 +146,38 @@ export class Sidebar {
 			if (item.index === this.activeIndex) cell.addClass('is-active');
 			cell.createEl('img', {
 				attr: {
-					src: item.feature.photos[0].url,
+					src: item.place.photos[0].url,
 					loading: 'lazy',
-					alt: item.feature.name ?? '',
+					alt: item.place.name,
 				},
 			});
-			const count = item.feature.photos.length;
-			const caption = cell.createDiv({
-				cls: 'life-map-side-photo-caption',
-				text: count > 1 ? `${item.feature.name ?? '未命名'} +${count - 1}` : item.feature.name ?? '未命名',
-			});
-			caption.addEventListener('click', () => this.options.onSelect(item.index));
+			const extra = item.place.visits.length > 1 ? ` · ${item.place.visits.length} 次` : '';
+			cell.createDiv({ cls: 'life-map-side-photo-caption', text: `${item.place.name}${extra}` });
 			cell.addEventListener('click', () => this.options.onSelect(item.index));
 		}
 	}
 
 	private renderTimeline(): void {
-		const groups = new Map<string, SidebarItem[]>();
-		for (const item of this.sorted()) {
-			const key = monthKey(item.feature.time);
+		const groups = new Map<string, ReturnType<typeof flattenVisits>>();
+		for (const entry of flattenVisits(this.items.map((item) => item.place))) {
+			const key = monthKey(entry.visit.time);
 			const bucket = groups.get(key) ?? [];
-			bucket.push(item);
+			bucket.push(entry);
 			groups.set(key, bucket);
 		}
-		for (const [label, items] of groups) {
+
+		for (const [label, entries] of groups) {
 			const group = this.body.createDiv({ cls: 'life-map-side-group' });
-			group.createDiv({ cls: 'life-map-side-group-title', text: `${label} · ${items.length}` });
-			for (const item of items) group.appendChild(this.buildRow(item));
+			group.createDiv({ cls: 'life-map-side-group-title', text: `${label} · ${entries.length}` });
+			for (const entry of entries) {
+				const item = this.items.find((candidate) => candidate.place.key === entry.place.key);
+				if (!item) continue;
+				group.appendChild(this.buildVisitRow(item, entry.visit));
+			}
 		}
 	}
 
-	private buildRow(item: SidebarItem): HTMLElement {
+	private buildPlaceRow(item: SidebarItem): HTMLElement {
 		const row = document.createElement('div');
 		row.addClass('life-map-side-item');
 		if (item.index === this.activeIndex) row.addClass('is-active');
@@ -181,12 +186,32 @@ export class Sidebar {
 		dot.style.backgroundColor = item.color;
 
 		const main = row.createDiv({ cls: 'life-map-side-main' });
-		main.createDiv({ cls: 'life-map-side-title', text: item.feature.name ?? '未命名地点' });
+		main.createDiv({ cls: 'life-map-side-title', text: item.place.name });
 
 		const meta: string[] = [];
-		if (item.feature.time) meta.push(shortDate(item.feature.time));
-		if (item.feature.category) meta.push(item.feature.category);
-		if (item.feature.photos.length > 0) meta.push(`图 ${item.feature.photos.length}`);
+		if (item.place.visits.length > 1) meta.push(`${item.place.visits.length} 次到访`);
+		if (item.place.latest) meta.push(shortDate(item.place.latest));
+		if (item.place.category) meta.push(item.place.category);
+		if (item.place.photos.length > 0) meta.push(`图 ${item.place.photos.length}`);
+		if (meta.length > 0) main.createDiv({ cls: 'life-map-side-meta', text: meta.join(' · ') });
+
+		row.addEventListener('click', () => this.options.onSelect(item.index));
+		return row;
+	}
+
+	private buildVisitRow(item: SidebarItem, visit: Feature): HTMLElement {
+		const row = document.createElement('div');
+		row.addClass('life-map-side-item');
+		if (item.index === this.activeIndex) row.addClass('is-active');
+
+		const dot = row.createSpan({ cls: 'life-map-side-dot' });
+		dot.style.backgroundColor = item.color;
+
+		const main = row.createDiv({ cls: 'life-map-side-main' });
+		main.createDiv({ cls: 'life-map-side-title', text: item.place.name });
+		const meta: string[] = [];
+		if (visit.time) meta.push(shortDate(visit.time));
+		if (visit.photos.length > 0) meta.push(`图 ${visit.photos.length}`);
 		if (meta.length > 0) main.createDiv({ cls: 'life-map-side-meta', text: meta.join(' · ') });
 
 		row.addEventListener('click', () => this.options.onSelect(item.index));
@@ -194,19 +219,13 @@ export class Sidebar {
 	}
 
 	private sorted(): SidebarItem[] {
-		// Date.parse per comparison is O(n log n) parses; precompute once.
-		const decorated = this.items.map((item) => ({
-			item,
-			time: item.feature.time ? Date.parse(item.feature.time) : NaN,
-		}));
-		decorated.sort((a, b) => {
-			const timeA = a.time;
-			const timeB = b.time;
+		return [...this.items].sort((a, b) => {
+			const timeA = a.place.latest ? Date.parse(a.place.latest) : NaN;
+			const timeB = b.place.latest ? Date.parse(b.place.latest) : NaN;
 			if (Number.isFinite(timeA) && Number.isFinite(timeB)) return timeB - timeA;
 			if (Number.isFinite(timeA)) return -1;
 			if (Number.isFinite(timeB)) return 1;
-			return (a.item.feature.name ?? '').localeCompare(b.item.feature.name ?? '');
+			return a.place.name.localeCompare(b.place.name);
 		});
-		return decorated.map((entry) => entry.item);
 	}
 }
