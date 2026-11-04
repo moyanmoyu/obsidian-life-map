@@ -97,7 +97,7 @@ export class GeoJsonSource implements DataSource {
 		for (const item of items) {
 			if (!item || typeof item !== 'object') continue;
 			const feature = item as GeoJsonFeature;
-			const props = (feature.properties ?? {}) as Record<string, unknown>;
+			const props: Record<string, unknown> = feature.properties ?? {};
 			const declared = props['coord_sys'] ?? props['coordSys'];
 			const sys: CoordSys = isCoordSys(declared) ? declared : defaultSys;
 

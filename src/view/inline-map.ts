@@ -153,7 +153,7 @@ export function renderInlineMap(
 		const file = plugin.app.vault.getAbstractFileByPath(ctx.sourcePath);
 		if (!(file instanceof TFile)) return null;
 		const cache = plugin.app.metadataCache.getFileCache(file);
-		return readCoords(cache?.frontmatter as Record<string, unknown> | undefined, plugin.settings.vault);
+		return readCoords(cache?.frontmatter, plugin.settings.vault);
 	};
 
 	const buildFeatures = (targetSys: 'WGS84' | 'GCJ02' | 'BD09') => {
@@ -248,7 +248,7 @@ export function renderInlineMap(
 			} as never);
 		}
 
-		const existing = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
+		const existing = map.getSource<GeoJSONSource>(SOURCE_ID);
 		if (existing) {
 			existing.setData(geojson);
 			return;

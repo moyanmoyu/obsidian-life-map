@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.8
+
+### 代码质量
+- 移除 5 处多余的类型断言（`getSource<GeoJSONSource>()` 泛型替代强制转换）
+- 明确保留的三类提示与原因（见 `docs/community-submission.md`）：
+  - 声明式设置 API（`getSettingDefinitions`）需要 Obsidian 1.13+，本版仍保持 `minAppVersion 1.7.2`
+  - `setWarning` 弃用提示同属 1.13 API
+  - `maplibre-gl` 安全公告需升级到 6.x，涉及破坏性变更，单独安排回归
+
 ## 0.9.7
 
 - 移除设置页标题里的插件名（社区目录审查要求：不要在设置标题重复插件名）

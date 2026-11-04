@@ -74,7 +74,7 @@ export class VaultFrontmatterSource implements DataSource {
 			if (!isInFolders(file.path, vaultSettings.folders)) continue;
 
 			const cache = app.metadataCache.getFileCache(file);
-			const fm = cache?.frontmatter as Record<string, unknown> | undefined;
+			const fm: Record<string, unknown> | undefined = cache?.frontmatter;
 			if (!fm) continue;
 
 			const coords = readCoords(fm, vaultSettings);

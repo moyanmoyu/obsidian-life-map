@@ -401,7 +401,7 @@ export class LifeMapView extends ItemView {
 		});
 
 		const data = { type: 'FeatureCollection', features };
-		const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
+		const source = map.getSource<GeoJSONSource>(SOURCE_ID);
 		if (source) {
 			source.setData(data as never);
 		} else {
