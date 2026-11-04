@@ -286,7 +286,7 @@ Each visit in the place popup has a delete button:
 
 | Item | Notes |
 |---|---|
-| Minimum Obsidian | 1.5.0 |
+| Minimum Obsidian | 1.7.2 |
 | Desktop | macOS / Windows / Linux |
 | Mobile | iOS / Android (basic support) |
 | Offline | data sources work offline; basemaps need network or cached tiles |

@@ -303,7 +303,7 @@ API：`registerSource` / `unregisterSource` / `registerBasemap` / `refresh` / `g
 
 | 项 | 说明 |
 |---|---|
-| 最低 Obsidian 版本 | 1.5.0 |
+| 最低 Obsidian 版本 | 1.7.2 |
 | 桌面端 | macOS / Windows / Linux |
 | 移动端 | iOS / Android（基础可用，未做深度适配） |
 | 离线 | 数据源可离线；底图需要网络或瓦片缓存 |
