@@ -18,6 +18,20 @@ A **general-purpose map view for Obsidian**: plot places from notes, GeoJSON, CS
 - **Open from the map**: click a pin to jump back to its note
 - **Export**: current filtered view to GeoJSON or a Markdown table
 
+## Screenshots
+
+Map view with clustering and the sidebar timeline:
+
+![Map view](docs/images/overview.jpg)
+
+One place, multiple visits (each visit is a sub-record you can open or delete):
+
+![Place popup](docs/images/popup.jpg)
+
+Inline map inside a note:
+
+![Inline map](docs/images/inline-map.jpg)
+
 ## Installation
 
 ### Community directory
