@@ -1,53 +1,31 @@
-# 上架 Obsidian 社区目录：提交清单
+# 上架 Obsidian 社区目录
 
 > 依据：https://docs.obsidian.md/community-directory/developer-policies
 > 提交入口：https://github.com/obsidianmd/obsidian-releases（编辑 `community-plugins.json` 并发 PR）
 
-## 1. 硬性要求（不满足必被拒）
+## 0. 现状核实（2026-11-04）
 
-| 要求 | 本项目现状 | 检查方式 |
-|---|---|---|
-| 仓库公开、含 `LICENSE` | ✅ MIT | 看仓库根目录 |
-| `manifest.json` 字段齐全 | ✅ id/name/version/minAppVersion/description/author/isDesktopOnly | `npm run build` 后检查 |
-| 不混淆代码 | ✅ esbuild 未开启混淆之外的字符替换？见备注 | 提交源码，未做字符串加密 |
-| 无客户端遥测 | ✅ 零上报 | 全局搜索 telemetry/analytics |
-| 无插件自更新机制 | ✅ 更新只走 Obsidian 目录 | 无 fetch 版本号逻辑 |
-| README 披露网络使用 | ✅ 见「网络访问与隐私」 | 检查 README |
-| 版本号三处一致 | ✅ manifest / package.json / versions.json | `npm run build` 不校验，用下方脚本 |
-| Release 资产含 main.js / manifest.json / styles.css | ✅ CI workflow 自动上传 | 看 GitHub Releases |
+| 检查项 | 结果 |
+|---|---|
+| 目录现有插件数 | 9,883 |
+| `id = life-map` 是否被占用 | ✅ 未占用 |
+| `name = Life Map` 是否被占用 | ✅ 未占用 |
+| 仓库可见性 | ✅ Public |
+| Release | ✅ [v0.9.2](https://github.com/moyanmoyu/obsidian-life-map/releases/tag/v0.9.2)，含 main.js / manifest.json / styles.css |
+| 版本一致性 | ✅ manifest = package = versions = 0.9.2 |
+| LICENSE | ✅ MIT |
+| 遥测 | ✅ 无 |
+| 网络使用 | ✅ README 已披露 |
 
-> 备注：esbuild 的 `minify` 会压缩标识符，这是允许的；政策禁止的是「混淆代码以隐藏用途」，所以必须**公开源码**，且不能用字符串加密/自解压那类手段。
-
-## 2. 版本一致性自检
-
-```bash
-node -p "require('./manifest.json').version"
-node -p "require('./package.json').version"
-node -p "Object.keys(require('./versions.json')).pop()"
-git tag --points-at HEAD
-```
-
-四个值必须完全一致（tag 形如 `0.2.0`，不带 `v` 前缀）。
-
-## 3. 发版流程
+一键自检：
 
 ```bash
-# 1. 改版本号：manifest.json / package.json / versions.json 三处
-# 2. 构建
-npm run build
-# 3. 提交并打 tag
-git add -A && git commit -m "chore: release 0.2.0"
-git tag 0.2.0
-git push && git push --tags
-# 4. GitHub Actions 会自动创建 Release 并上传三个产物
+npm run check:submission
 ```
 
-然后在 GitHub Release 页面确认：`main.js`、`manifest.json`、`styles.css` 三个资产都在。
+## 1. 要加到 community-plugins.json 的条目
 
-## 4. 提交到社区目录
-
-1. Fork `obsidianmd/obsidian-releases`
-2. 在 `community-plugins.json` 数组末尾追加：
+在数组**末尾**追加（注意逗号）：
 
 ```json
 {
@@ -59,22 +37,83 @@ git push && git push --tags
 }
 ```
 
-3. 提 PR，标题：`Add plugin: Life Map`
-4. 在 PR 描述里写清：插件做什么、是否有网络请求（有，底图与用户配置的 API）、是否有付费（无）
+- `id` 必须与 `manifest.json` 完全一致
+- `description` 建议与 manifest 一致（112 字符，上限 250）
+- `repo` 是 `用户名/仓库名`，不带域名
 
-## 5. 常见被拒原因（提前自查）
+## 2. 提交步骤
 
-- README 没写网络请求 → 已有「网络访问与隐私」章节
-- Release 里漏了 `styles.css` → CI 已包含
-- 用了 `console.log` 泄漏隐私数据 → 本项目只打印错误对象
-- 插件 id 与其他插件重名 → `life-map` 目前未占用
-- 首次加载直接发请求（审核会问）→ 本项目启动时会加载已启用数据源，README 已说明
-- 移动端崩溃 → 已声明 `isDesktopOnly: false`，需在移动端实测过再提交
+```bash
+# 1) fork 并克隆
+#    在 GitHub 网页点 obsidianmd/obsidian-releases 的 Fork，然后：
+git clone https://github.com/<你的用户名>/obsidian-releases.git
+cd obsidian-releases
 
-## 6. 提交前手动验收
+# 2) 新建分支
+git checkout -b add-life-map
 
-- [ ] 全新 vault 安装后打开地图，出现引导卡片而不是空白
-- [ ] 加一条带 `coordinates` 的笔记，刷新后出现点位
-- [ ] 深浅主题切换，底图正确变色且点位不反色
-- [ ] 移动端打开不白屏、能拖动缩放
-- [ ] 断网后打开：底图空白但界面不崩、有提示
+# 3) 编辑 community-plugins.json，在数组末尾追加上面的条目
+
+# 4) 校验 JSON 合法（少个逗号整个文件就挂了）
+node -e "JSON.parse(require('fs').readFileSync('community-plugins.json','utf8')); console.log('JSON OK')"
+
+# 5) 提交并推送
+git add community-plugins.json
+git commit -m "Add plugin: Life Map"
+git push -u origin add-life-map
+```
+
+6. 在 GitHub 上向 `obsidianmd/obsidian-releases` 发 PR，标题：**`Add plugin: Life Map`**
+7. 描述直接粘贴 [pr-body.md](pr-body.md)
+
+## 3. 审核关注点
+
+Obsidian 会逐项核对，重点在这几条：
+
+| 审核点 | 我们的状态 |
+|---|---|
+| manifest 字段完整 | ✅ 已自检 |
+| Release 资产齐全 | ✅ 三个文件 |
+| 版本号与 tag 一致 | ✅ v0.9.2 |
+| 无代码混淆 | ✅ 源码公开（minify 属于压缩，不是混淆） |
+| 无客户端遥测 | ✅ |
+| 无插件自更新机制 | ✅ 更新只走目录 |
+| README 披露网络使用 | ✅ 底图与用户自配 API |
+| 付费 / 账号要求 | ✅ 无 |
+| 桌面端 + 移动端可运行 | ⚠️ 移动端未实测，见下 |
+
+## 4. 提交前还差一件事：截图
+
+目录页面和 PR 都会看 README 里的截图。建议：
+
+1. 打开地图视图，截一张**带侧栏和聚合点**的图
+2. 截一张**弹窗 + 照片**的图
+3. 截一张**笔记内嵌地图**的图
+4. 用示例数据，别用真实个人记录
+5. 存到 `docs/images/`，README 顶部插入：
+
+```markdown
+![Life Map](docs/images/overview.png)
+```
+
+## 5. 上架后的版本更新
+
+不需要再改 `community-plugins.json`，只要求：
+
+```bash
+# 改版本号 → 构建 → 测试 → 提交 → 打 tag → 推送
+npm run check:submission
+git tag -a vX.Y.Z -m "Life Map vX.Y.Z"
+git push origin main && git push origin vX.Y.Z
+```
+
+CI 会自动发 Release，目录里的版本会自动读取 release 的 manifest。
+
+## 6. 常见被拒原因（提前避开）
+
+- PR 里同时改了别的文件 → 只改 `community-plugins.json`
+- JSON 语法错误 → 提交前跑一遍上面的 `JSON.parse`
+- tag 与 manifest 版本不一致 → 用 `npm run check:submission` 兜底
+- README 没有网络使用说明 → 已有「网络访问与隐私」章节
+- 移动端崩溃 → 声明了 `isDesktopOnly: false`，提交前最好在手机上装一次
+- 描述里塞关键词 → 保持与 manifest 一致、客观描述
