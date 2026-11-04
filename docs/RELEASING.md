@@ -26,6 +26,10 @@
 
 ## 2. 版本一致性
 
+> ⚠️ **Release 的 tag 必须与 `manifest.json` 的版本完全一致，且不能带 `v` 前缀**。
+> 社区目录按「manifest 版本 == release tag」查找资产，`v0.9.4` 会被判定为「没有匹配的 release」。
+> 正确：`0.9.4`；错误：`v0.9.4`。
+
 三处必须一致：
 
 ```bash
@@ -43,9 +47,9 @@ CI 也会校验 `tag` 与 `manifest.json` 的版本是否匹配。
 npm run build          # 本地确认能构建
 npm run test           # 冒烟测试
 git add -A && git commit -m "chore: release x.y.z"
-git tag -a vX.Y.Z -m "Life Map vX.Y.Z"
+git tag -a X.Y.Z -m "Life Map X.Y.Z"   # 注意：tag 不能带 v 前缀
 git push origin main
-git push origin vX.Y.Z   # 触发 CI：构建 + 校验版本 + 上传三个资产
+git push origin X.Y.Z   # 触发 CI：构建 + 校验版本 + 上传三个资产
 ```
 
 ## 4. 手动发行包

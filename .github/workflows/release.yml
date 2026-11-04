@@ -45,7 +45,9 @@ jobs:
           TAG=${GITHUB_REF#refs/tags/}
           echo "manifest=$MANIFEST package=$PKG tag=$TAG"
           test "$MANIFEST" = "$PKG"
-          test "v$MANIFEST" = "$TAG" -o "$MANIFEST" = "$TAG"
+          # The community directory looks up a release whose tag equals the
+          # manifest version, so a "v" prefix would break installation.
+          test "$MANIFEST" = "$TAG"
 
       - name: Publish release
         uses: softprops/action-gh-release@v2

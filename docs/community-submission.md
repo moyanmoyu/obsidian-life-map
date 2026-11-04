@@ -11,7 +11,7 @@
 | `id = life-map` 是否被占用 | ✅ 未占用（全目录检索） |
 | 仓库可见性 | ✅ Public，默认分支 `main` |
 | HEAD 的 manifest 版本 | ✅ 0.9.4（目录读取默认分支 HEAD 的 manifest） |
-| GitHub Release | ✅ [v0.9.4](https://github.com/moyanmoyu/obsidian-life-map/releases/tag/v0.9.4)，含 main.js / manifest.json / styles.css |
+| GitHub Release | ✅ [0.9.4](https://github.com/moyanmoyu/obsidian-life-map/releases/tag/0.9.4)，含 main.js / manifest.json / styles.css |
 | README / LICENSE | ✅ 根目录都有 |
 | 遥测 / 网络披露 | ✅ README 已披露，无遥测 |
 | 平台验证 | macOS ✅ · iOS ✅ · Android ✅ · Windows/Linux 未实测 |
@@ -51,7 +51,7 @@ npm run check:submission
 |---|---|
 | `manifest.json` @ HEAD | 目录直接读默认分支 HEAD 的 manifest，必须是最新且已提交 |
 | id 唯一性 | 不能与其他插件重复，且不能包含 `obsidian` 字样 |
-| Release 资产 | 用户安装时按 manifest 版本下载对应 tag 的 `main.js` / `manifest.json` / `styles.css` |
+| Release 资产 | 用户安装时按 manifest 版本下载对应 tag 的 `main.js` / `manifest.json` / `styles.css`；**tag 必须等于 manifest 版本，不能带 `v`** |
 | README 摘要 | 目录页会展示 README 摘要，相对图片链接（如 `docs/images/overview.jpg`）会被自动重写到仓库 |
 | 开发者政策 | 无混淆、无遥测、无自更新机制、披露网络使用 |
 
@@ -74,8 +74,8 @@ npm run test
 npm run check:submission
 # 2. 提交并打 tag
 git commit -am "chore: release x.y.z"
-git tag -a vX.Y.Z -m "Life Map vX.Y.Z"
-git push origin main && git push origin vX.Y.Z
+git tag -a X.Y.Z -m "Life Map X.Y.Z"   # 不能带 v 前缀
+git push origin main && git push origin X.Y.Z
 ```
 
 CI 会自动构建并发布 Release，目录会读取新的 manifest + 对应 tag 的资产。

@@ -38,8 +38,9 @@ if (!versions[manifest.version]) bad(`versions.json 缺少 ${manifest.version}`)
 else ok(`versions.json 记录了 ${manifest.version}`);
 try {
 	const tags = execFileSync('git', ['tag', '-l'], { encoding: 'utf8' }).split('\n');
-	if (!tags.includes(`v${manifest.version}`)) bad(`本地缺少 tag v${manifest.version}`);
-	else ok(`本地存在 tag v${manifest.version}`);
+	if (tags.includes(manifest.version)) ok(`本地存在 tag ${manifest.version}`);
+	else if (tags.includes(`v${manifest.version}`)) bad(`只有 v${manifest.version}，社区目录要求 tag 不带 v 前缀`);
+	else bad(`本地缺少 tag ${manifest.version}`);
 } catch {
 	notes.push('无法读取 git tag');
 }
