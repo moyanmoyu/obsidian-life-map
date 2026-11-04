@@ -36,7 +36,7 @@ Inline map inside a note:
 
 ### Community directory
 
-Submission is in review — use the manual method below for now.
+Not listed yet — use the manual method below for now.
 
 ### Manual
 

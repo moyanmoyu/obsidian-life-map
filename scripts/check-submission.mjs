@@ -75,4 +75,4 @@ if (problems.length > 0) {
 	console.log(`\n${problems.length} 项未通过`);
 	process.exit(1);
 }
-console.log('\n全部通过，可以提交 PR');
+console.log('\n全部通过，可以提交到 community.obsidian.md');

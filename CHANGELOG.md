@@ -2,6 +2,11 @@
 
 ## 0.9.4
 
+### 文档
+- 上架流程更新：Obsidian 已停用 `obsidian-releases` 的 PR 提交方式，改为在 community.obsidian.md 网页提交
+- README 改为英文优先（`README.md`），中文移至 `README.zh-CN.md`
+
+
 - 移动端修复：底部抽屉式侧栏的最后几行被 Obsidian 悬浮导航栏遮住；为侧栏内容增加底部留白（84px）
 - 0.9.3 的窄屏工具栏与地图控件上移修复保持不变（手机需更新插件文件后可见）
 
