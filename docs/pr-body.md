@@ -8,8 +8,8 @@ https://github.com/moyanmoyu/obsidian-life-map
 
 - [x] I have tested this on macOS
 - [x] I have tested this on iOS (iPhone, Obsidian mobile)
+- [x] I have tested this on Android (Huawei, Obsidian mobile)
 - [ ] I have tested this on Windows / Linux
-- [ ] I have tested this on Android
 - [x] The GitHub release contains `manifest.json`, `main.js`, and `styles.css`
 - [x] The GitHub release name matches the release tag (`v0.9.4`)
 - [x] The `manifest.json` version matches the release tag (`0.9.4`)

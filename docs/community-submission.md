@@ -80,7 +80,7 @@ Obsidian 会逐项核对，重点在这几条：
 | 无插件自更新机制 | ✅ 更新只走目录 |
 | README 披露网络使用 | ✅ 底图与用户自配 API |
 | 付费 / 账号要求 | ✅ 无 |
-| 桌面端 + 移动端可运行 | ✅ macOS 实测、iOS 实测（iPhone）；Windows/Linux/Android 未实测 |
+| 桌面端 + 移动端可运行 | ✅ macOS、iOS、Android 均实机测试通过；Windows/Linux 未实测 |
 
 ## 4. 截图（已完成）
 
@@ -92,8 +92,8 @@ Obsidian 会逐项核对，重点在这几条：
 |---|---|---|
 | macOS | ✅ | 实机测试：地图、聚合、侧栏、内嵌地图、删除、导出 |
 | iOS | ✅ | iPhone 实机：地图渲染、弹窗、内嵌地图、侧栏；窄屏工具栏与底部抽屉遮挡问题已在 0.9.3 / 0.9.4 修复并复测通过 |
-| Windows / Linux | ❌ | 仅 CI 编译通过，未实机运行 |
-| Android | ❌ | 未实测 |
+| Windows / Linux | ❌ | 仅 CI 编译通过，未实机运行（插件无平台专用 API） |
+| Android | ✅ | 华为实机：地图渲染、弹窗、内嵌地图、底部抽屉均正常 |
 
 > 插件没有使用任何平台专用 API（无 `electron`、无 `process.platform`），跨平台风险主要在 WebGL 与窄屏布局，这两项已在 iOS 上验证。
 
