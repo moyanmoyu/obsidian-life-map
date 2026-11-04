@@ -9,7 +9,7 @@ import type { CoordSys } from './model';
 
 const PI = Math.PI;
 const A = 6378245.0;
-const EE = 0.00669342162296594323;
+const EE = 6.693421622965943e-3;
 const X_PI = (PI * 3000.0) / 180.0;
 
 /** Roughly mainland China; outside this box no offset is applied. */

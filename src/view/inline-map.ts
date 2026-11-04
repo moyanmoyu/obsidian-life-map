@@ -56,7 +56,7 @@ function parsePair(value: unknown): [number, number] | undefined {
 function parseOptions(source: string): InlineOptions {
 	let raw: Record<string, unknown> = {};
 	try {
-		const parsed = parseYaml(source);
+		const parsed: unknown = parseYaml(source);
 		if (parsed && typeof parsed === 'object') raw = parsed as Record<string, unknown>;
 	} catch {
 		// A malformed block should never break the note preview.
@@ -80,7 +80,7 @@ function styleFor(plugin: LifeMapPlugin): StyleSpecification | string {
 	const settings = plugin.settings;
 	const basemap = resolveBasemap(settings, plugin.registry.getBasemaps());
 	const dark = settings.followTheme && document.body.classList.contains('theme-dark');
-	return (basemap?.getStyle(settings, dark) ?? '') as StyleSpecification | string;
+	return basemap?.getStyle(settings, dark) ?? '';
 }
 
 /**
@@ -325,10 +325,10 @@ export function renderInlineMap(
 
 		map.on('click', LAYER_POINTS, handlePointClick);
 		map.on('mouseenter', LAYER_POINTS, () => {
-			if (map) map.getCanvas().style.cursor = 'pointer';
+			map?.getCanvas().classList.add('life-map-pointer');
 		});
 		map.on('mouseleave', LAYER_POINTS, () => {
-			if (map) map.getCanvas().style.cursor = '';
+			map?.getCanvas().classList.remove('life-map-pointer');
 		});
 	};
 
@@ -371,7 +371,7 @@ export function renderInlineMap(
 
 		map = new maplibregl.Map({
 			container: mapEl,
-			style: styleFor(plugin) as StyleSpecification,
+			style: styleFor(plugin),
 			center: [center[1], center[0]],
 			zoom,
 			maxZoom: 18,
@@ -386,14 +386,13 @@ export function renderInlineMap(
 			console.warn('[life-map] inline map WebGL context lost');
 			showFailure('WebGL 上下文丢失，重新打开笔记即可恢复');
 		});
-		console.info('[life-map] inline map created', { active: plugin.inlineMapCount });
 
 		observer = new ResizeObserver(() => map?.resize());
 		observer.observe(container);
 
 		themeRef = plugin.app.workspace.on('css-change', () => {
 			if (!map) return;
-			map.setStyle(styleFor(plugin) as StyleSpecification);
+			map.setStyle(styleFor(plugin));
 			window.setTimeout(() => {
 				if (map?.isStyleLoaded()) addData();
 			}, 200);

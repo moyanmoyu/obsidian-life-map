@@ -73,16 +73,22 @@ export function getList(root: unknown, path: string): unknown[] {
 			} else if (seg.type === 'index') {
 				if (Array.isArray(item)) next.push(item[seg.index]);
 			} else {
-				if (Array.isArray(item)) next.push(...item);
-				else next.push(item);
+				if (Array.isArray(item)) {
+					for (const entry of item) next.push(entry);
+				} else {
+					next.push(item);
+				}
 			}
 		}
 		current = next;
 	}
 	const flat: unknown[] = [];
 	for (const item of current) {
-		if (Array.isArray(item)) flat.push(...item);
-		else if (item !== undefined && item !== null) flat.push(item);
+		if (Array.isArray(item)) {
+			for (const entry of item) flat.push(entry);
+		} else if (item !== undefined && item !== null) {
+			flat.push(item);
+		}
 	}
 	return flat;
 }

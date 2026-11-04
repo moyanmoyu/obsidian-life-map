@@ -11,7 +11,8 @@ export interface PlaceNoteValues {
 /** Remove characters that are illegal in filenames on any platform. */
 export function sanitizeFileName(name: string): string {
 	const cleaned = name
-		.replace(/[\\/:*?"<>|#^\[\]]/g, ' ')
+		.replace(/[\\/:*?"<>|#^]/g, ' ')
+		.replace(/[[\]]/g, ' ')
 		.replace(/\s+/g, ' ')
 		.trim();
 	return cleaned.length > 0 ? cleaned.slice(0, 80) : '未命名地点';

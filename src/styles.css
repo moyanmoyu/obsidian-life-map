@@ -897,3 +897,10 @@
 		padding-bottom: 8px;
 	}
 }
+
+/* Hover cursor on map points (set via classList, not inline styles) */
+
+.life-map-canvas canvas.life-map-pointer,
+.life-map-inline-map canvas.life-map-pointer {
+	cursor: pointer;
+}

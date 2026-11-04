@@ -1,8 +1,8 @@
 {
   "id": "life-map",
   "name": "Life Map",
-  "version": "0.9.5",
-  "minAppVersion": "1.5.0",
+  "version": "0.9.6",
+  "minAppVersion": "1.7.2",
   "description": "Plot notes, GeoJSON, CSV and any JSON API on one map, with layers, filters, clustering, photo wall and timeline.",
   "author": "moyu",
   "authorUrl": "",

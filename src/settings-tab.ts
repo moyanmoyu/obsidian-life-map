@@ -14,7 +14,7 @@ export class LifeMapSettingsTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
-		containerEl.createEl('h2', { text: 'Life Map' });
+		new Setting(containerEl).setName('Life Map').setHeading();
 
 		this.renderBasemapSection(containerEl);
 		this.renderVaultSection(containerEl);
@@ -25,7 +25,7 @@ export class LifeMapSettingsTab extends PluginSettingTab {
 	// ---------------------------------------------------------------- basemap
 
 	private renderBasemapSection(parent: HTMLElement): void {
-		parent.createEl('h3', { text: '底图' });
+		new Setting(parent).setName('底图').setHeading();
 
 		new Setting(parent)
 			.setName('底图来源')
@@ -125,7 +125,7 @@ export class LifeMapSettingsTab extends PluginSettingTab {
 	// ------------------------------------------------------------------ vault
 
 	private renderVaultSection(parent: HTMLElement): void {
-		parent.createEl('h3', { text: '笔记数据源' });
+		new Setting(parent).setName('笔记数据源').setHeading();
 
 		new Setting(parent)
 			.setName('启用笔记属性源')
@@ -241,7 +241,7 @@ export class LifeMapSettingsTab extends PluginSettingTab {
 	// ------------------------------------------------------------------- http
 
 	private renderHttpSection(parent: HTMLElement): void {
-		parent.createEl('h3', { text: 'HTTP 数据源' });
+		new Setting(parent).setName('HTTP 数据源').setHeading();
 		parent.createEl('p', {
 			cls: 'setting-item-description',
 			text: '用 JSONPath 把任意 JSON API 映射成点位，不需要写代码。请求由 Obsidian 发出，不走浏览器 CORS。',
@@ -351,7 +351,7 @@ export class LifeMapSettingsTab extends PluginSettingTab {
 	// ------------------------------------------------------------------- help
 
 	private renderHelpSection(parent: HTMLElement): void {
-		parent.createEl('h3', { text: '使用说明' });
+		new Setting(parent).setName('使用说明').setHeading();
 
 		parent.createEl('p', {
 			cls: 'setting-item-description',
@@ -414,7 +414,7 @@ export class LifeMapSettingsTab extends PluginSettingTab {
 		apply: (parsed: unknown) => void
 	): Promise<void> {
 		try {
-			const parsed = JSON.parse(area.inputEl.value || '{}');
+			const parsed: unknown = JSON.parse(area.inputEl.value || '{}');
 			apply(parsed);
 			await this.save();
 		} catch {

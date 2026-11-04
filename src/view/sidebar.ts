@@ -178,9 +178,12 @@ export class Sidebar {
 	}
 
 	private buildPlaceRow(item: SidebarItem): HTMLElement {
-		const row = document.createElement('div');
-		row.addClass('life-map-side-item');
-		if (item.index === this.activeIndex) row.addClass('is-active');
+		const row = createDiv({
+			cls:
+				item.index === this.activeIndex
+					? 'life-map-side-item is-active'
+					: 'life-map-side-item',
+		});
 
 		const dot = row.createSpan({ cls: 'life-map-side-dot' });
 		dot.style.backgroundColor = item.color;
@@ -200,9 +203,12 @@ export class Sidebar {
 	}
 
 	private buildVisitRow(item: SidebarItem, visit: Feature): HTMLElement {
-		const row = document.createElement('div');
-		row.addClass('life-map-side-item');
-		if (item.index === this.activeIndex) row.addClass('is-active');
+		const row = createDiv({
+			cls:
+				item.index === this.activeIndex
+					? 'life-map-side-item is-active'
+					: 'life-map-side-item',
+		});
 
 		const dot = row.createSpan({ cls: 'life-map-side-dot' });
 		dot.style.backgroundColor = item.color;

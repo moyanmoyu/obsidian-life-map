@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.9.6
+
+### 社区目录审核修复
+- 移除 `onunload` 里的 `detachLeavesOfType`（会导致用户移动过的视图被重置）
+- `minAppVersion` 提升到 **1.7.2**（使用 `workspace.revealLeaf` 1.7.2、`fileManager.trashFile` 1.6.6）
+- 设置页标题改用 `Setting.setHeading()`，不再直接创建 `h2`/`h3`
+- 地图悬停光标改用 CSS 类，不再直接赋值 `style.cursor`
+- `document.createElement` 全部替换为 Obsidian 的 `createDiv`
+- 去掉控制台多余日志、修正数字字面量精度、正则多余转义、JSONPath 展开的类型问题
+- CI 为 release 资产附加构建来源证明（artifact attestations）
+
 ## 0.9.5
 
 - 社区目录提交修复：release tag 与 manifest 版本严格一致（不带 `v` 前缀）；本版用于让目录重新扫描到匹配的 release

@@ -115,7 +115,6 @@ export default class LifeMapPlugin extends Plugin {
 	onunload(): void {
 		if (this.autoRefreshTimer !== null) window.clearTimeout(this.autoRefreshTimer);
 		this.autoRefreshTimer = null;
-		this.app.workspace.detachLeavesOfType(VIEW_TYPE_LIFE_MAP);
 	}
 
 	async loadSettings(): Promise<void> {
@@ -169,13 +168,13 @@ export default class LifeMapPlugin extends Plugin {
 		if (existing.length > 0) {
 			const view = existing[0].view;
 			if (intent && view instanceof LifeMapView) view.applyIntent(intent);
-			workspace.revealLeaf(existing[0]);
+			void workspace.revealLeaf(existing[0]);
 			return;
 		}
 		if (intent) this.pendingIntent = intent;
 		const leaf = workspace.getLeaf(true);
 		await leaf.setViewState({ type: VIEW_TYPE_LIFE_MAP, active: true });
-		workspace.revealLeaf(leaf);
+		void workspace.revealLeaf(leaf);
 	}
 
 	openNewPlaceModal(): void {

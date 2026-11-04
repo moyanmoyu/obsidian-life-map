@@ -25,6 +25,10 @@ import type { MapViewIntent } from '../main';
 import { Sidebar } from './sidebar';
 import { ConfirmDeleteModal } from '../ui/confirm-delete';
 
+function setPointerCursor(map: MapLibreMap, active: boolean): void {
+	map.getCanvas().classList.toggle('life-map-pointer', active);
+}
+
 export class LifeMapView extends ItemView {
 	private readonly plugin: LifeMapPlugin;
 
@@ -179,7 +183,7 @@ export class LifeMapView extends ItemView {
 			this.styleSignature = signature;
 			const basemap = resolveBasemap(this.plugin.settings, this.plugin.registry.getBasemaps());
 			if (basemap) {
-				this.map.setStyle(basemap.getStyle(this.plugin.settings, this.useDark()) as StyleSpecification);
+				this.map.setStyle(basemap.getStyle(this.plugin.settings, this.useDark()));
 				const paintWhenReady = (attempt: number): void => {
 					if (!this.map) return;
 					if (this.map.isStyleLoaded() || attempt > 20) this.repaint();
@@ -307,7 +311,7 @@ export class LifeMapView extends ItemView {
 
 		this.map = new maplibregl.Map({
 			container: this.mapEl,
-			style: basemap.getStyle(settings, this.useDark()) as StyleSpecification,
+			style: basemap.getStyle(settings, this.useDark()),
 			center: [104.2, 35.86],
 			zoom: 3.1,
 			maxZoom: 18,
@@ -482,16 +486,16 @@ export class LifeMapView extends ItemView {
 		});
 
 		map.on('mouseenter', LAYER_POINTS, () => {
-			map.getCanvas().style.cursor = 'pointer';
+			setPointerCursor(map, true);
 		});
 		map.on('mouseleave', LAYER_POINTS, () => {
-			map.getCanvas().style.cursor = '';
+			setPointerCursor(map, false);
 		});
 		map.on('mouseenter', LAYER_CLUSTERS, () => {
-			map.getCanvas().style.cursor = 'pointer';
+			setPointerCursor(map, true);
 		});
 		map.on('mouseleave', LAYER_CLUSTERS, () => {
-			map.getCanvas().style.cursor = '';
+			setPointerCursor(map, false);
 		});
 	}
 
@@ -503,8 +507,7 @@ export class LifeMapView extends ItemView {
 
 		this.popup?.remove();
 
-		const content = document.createElement('div');
-		content.addClass('life-map-popup');
+		const content = createDiv({ cls: 'life-map-popup' });
 		content.createDiv({ cls: 'life-map-popup-title', text: place.name });
 
 		const meta: string[] = [];
@@ -550,9 +553,7 @@ export class LifeMapView extends ItemView {
 	}
 
 	private buildVisitEntry(visit: Feature, place: PlaceGroup, separated: boolean): HTMLElement {
-		const root = document.createElement('div');
-		root.addClass('life-map-visit');
-		if (separated) root.addClass('is-separated');
+		const root = createDiv({ cls: separated ? 'life-map-visit is-separated' : 'life-map-visit' });
 
 		const head = root.createDiv({ cls: 'life-map-visit-head' });
 		head.createSpan({
