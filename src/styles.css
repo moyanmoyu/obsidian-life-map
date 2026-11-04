@@ -823,3 +823,67 @@
 	gap: 8px;
 	margin-top: 14px;
 }
+
+/* Mobile: compact toolbar, controls above Obsidian's floating nav bar */
+
+@media (max-width: 600px) {
+	.life-map-toolbar {
+		gap: 6px;
+		padding: 8px;
+	}
+
+	.life-map-search {
+		flex: 1 1 100%;
+		min-width: 0;
+	}
+
+	.life-map-dates {
+		order: 2;
+		flex: 1 1 100%;
+		gap: 4px;
+	}
+
+	.life-map-date-label {
+		display: none;
+	}
+
+	.life-map-date {
+		flex: 1 1 0;
+		min-width: 0;
+		font-size: 11px;
+	}
+
+	.life-map-icon-button {
+		order: 3;
+		width: 30px;
+		height: 30px;
+	}
+
+	.life-map-chips {
+		padding: 4px 8px;
+		gap: 4px;
+	}
+
+	.life-map-chip {
+		font-size: 11px;
+		padding: 2px 6px;
+	}
+
+	.life-map-status {
+		padding: 3px 8px;
+		font-size: 10px;
+	}
+
+	.life-map-inline-open {
+		font-size: 10px;
+		padding: 2px 6px;
+	}
+}
+
+@media (max-width: 700px) {
+	/* Keep attribution / scale / zoom above Obsidian mobile's floating toolbar */
+	.life-map-canvas .maplibregl-ctrl-bottom-left,
+	.life-map-canvas .maplibregl-ctrl-bottom-right {
+		bottom: 68px;
+	}
+}
