@@ -42,6 +42,8 @@ CI 也会校验 `tag` 与 `manifest.json` 的版本是否匹配。
 
 ## 3. 发布流程
 
+> Release 资产由 CI 构建并附带 **artifact attestation**（构建来源证明），可在仓库的 Attestations 页面校验。
+
 ```bash
 # 改版本号（manifest.json / package.json / versions.json）
 npm run build          # 本地确认能构建

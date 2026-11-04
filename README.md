@@ -304,6 +304,11 @@ No telemetry, no auto-update mechanism. Network access only happens for:
 
 Credentials are stored locally in `.obsidian/plugins/life-map/data.json` (plain text). No note, photo or coordinate is ever collected or uploaded.
 
+Two behaviours worth knowing about (shown in the community directory's automated review):
+
+- **Vault enumeration** — to find `.geojson` / `.csv` files, the plugin lists vault file paths (`vault.getFiles()`). It only reads the contents of files whose extension matches an enabled data source; disable the GeoJSON / CSV sources in settings to skip this scan entirely.
+- **Clipboard** — the "copy example" button in the empty state *writes* to the clipboard. The plugin never reads the clipboard.
+
 ## Known limitations (v0.9)
 
 - Points only — no polylines (GPX tracks) or polygons

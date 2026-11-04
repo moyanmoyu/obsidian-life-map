@@ -25,6 +25,7 @@
 ## 0.9.2
 
 ### 工程
+- Release 附带构建来源证明（GitHub artifact attestations），便于校验资产由本仓库 CI 构建
 - CI 改用 Node 22，`npm ci` 增加 `--no-audit --no-fund` 并在安装后校验 tsc/esbuild 是否存在（npm 10 崩溃后仍返回 0 会导致构建缺工具）
 
 
