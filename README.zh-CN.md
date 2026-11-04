@@ -34,9 +34,13 @@
 
 ## 安装
 
-### 社区插件（尚未上架）
+### 社区插件（已上架）
 
-目前请先用下面的手动方式安装。
+在 Obsidian 里打开 **设置 → 第三方插件 → 浏览**，搜索 **Life Map** 直接安装：
+
+https://community.obsidian.md/plugins/life-map
+
+### 手动安装
 
 ### 手动
 

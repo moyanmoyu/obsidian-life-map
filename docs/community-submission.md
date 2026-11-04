@@ -1,5 +1,8 @@
 # 上架 Obsidian 社区目录
 
+> **状态：已上架（2026-11-04，v0.9.7）** — https://community.obsidian.md/plugins/life-map
+> 以下流程保留作为参考；后续更新只需要发新 Release，不用重新提交。
+
 > **重要：提交方式已变更（2026-11 确认）**
 > Obsidian 已停用 GitHub PR 流程。`obsidianmd/obsidian-releases` 现在不接受 Pull Request（其 PR API 直接返回 404），改为通过 [community.obsidian.md](https://community.obsidian.md) 网页提交。
 
