@@ -1,0 +1,41 @@
+name: Issue notifications
+
+on:
+  issues:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  bark:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Push to Bark (iOS)
+        env:
+          BARK_KEY: ${{ secrets.BARK_KEY }}
+          BARK_SERVER: ${{ vars.BARK_SERVER }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          ISSUE_USER: ${{ github.event.issue.user.login }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          if [ -z "$BARK_KEY" ]; then
+            echo "BARK_KEY 未配置，跳过推送。配置方法见 docs/issue-notifications.md"
+            exit 0
+          fi
+          SERVER="${BARK_SERVER:-https://api.day.app}"
+          SUMMARY=$(printf '%s' "$ISSUE_BODY" | head -c 300)
+          PAYLOAD=$(jq -n \
+            --arg key "$BARK_KEY" \
+            --arg title "🐛 $ISSUE_TITLE" \
+            --arg body "来自 @$ISSUE_USER
+
+          $SUMMARY" \
+            --arg url "$ISSUE_URL" \
+            '{device_key: $key, title: $title, body: $body, url: $url, group: "Life Map", sound: "minuet"}')
+          echo "Pushing to $SERVER ..."
+          curl -sS --fail-with-body -X POST "$SERVER/push" \
+            -H 'Content-Type: application/json' \
+            -d "$PAYLOAD" || echo "Bark 推送失败（不影响 issue 本身）"
