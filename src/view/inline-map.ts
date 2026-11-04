@@ -250,7 +250,7 @@ export function renderInlineMap(
 
 		const existing = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
 		if (existing) {
-			existing.setData(geojson as never);
+			existing.setData(geojson);
 			return;
 		}
 

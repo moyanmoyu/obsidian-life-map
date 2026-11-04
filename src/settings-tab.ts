@@ -14,7 +14,6 @@ export class LifeMapSettingsTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
-		new Setting(containerEl).setName('Life Map').setHeading();
 
 		this.renderBasemapSection(containerEl);
 		this.renderVaultSection(containerEl);

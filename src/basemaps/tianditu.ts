@@ -69,6 +69,6 @@ export const tianditu: Basemap = {
 				},
 			},
 			layers,
-		} as StyleSpecification;
+		};
 	},
 };

@@ -4,7 +4,6 @@ import maplibregl, {
 	type Map as MapLibreMap,
 	type MapLayerMouseEvent,
 	type Popup as MapLibrePopup,
-	type StyleSpecification,
 } from 'maplibre-gl';
 import { basemapCoordSys } from '../basemaps';
 import { resolveBasemap } from '../basemaps/common';

@@ -27,7 +27,7 @@ export function darkVeilLayer(opacity = 0.48): LayerSpecification {
 		id: 'life-map-dark-veil',
 		type: 'background',
 		paint: { 'background-color': `rgba(12, 15, 20, ${opacity})` },
-	} as LayerSpecification;
+	};
 }
 
 /** Build a single-layer raster style (used by custom XYZ / WMTS basemaps). */
@@ -62,7 +62,7 @@ export function rasterStyle(options: {
 			},
 		},
 		layers,
-	} as StyleSpecification;
+	};
 }
 
 export function resolveBasemap(
