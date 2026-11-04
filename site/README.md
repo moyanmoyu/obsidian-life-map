@@ -1,5 +1,16 @@
 # 门户站（Cloudflare Pages）
 
+> **线上地址**：https://life-map-site.pages.dev （中文）· https://life-map-site.pages.dev/en/ （英文）
+>
+> 更新方式（token 存在 `~/.cloudflare_token`）：
+>
+> ```bash
+> CLOUDFLARE_API_TOKEN=$(cat ~/.cloudflare_token) \
+> CLOUDFLARE_ACCOUNT_ID=4a9147b00deb5025c3d1628dd7a6e8e4 \
+> npx wrangler pages deploy site --project-name life-map-site --branch main --commit-dirty=true
+> ```
+
+
 纯静态站，不需要服务器、不需要数据库。5 个文件：
 
 ```

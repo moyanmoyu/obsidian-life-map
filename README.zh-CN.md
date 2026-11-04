@@ -2,7 +2,7 @@
 
 简体中文 · [English](README.md)
 
-> 仓库：https://github.com/moyanmoyu/obsidian-life-map
+> 官网：https://life-map-site.pages.dev · 仓库：https://github.com/moyanmoyu/obsidian-life-map
 
 一个**通用的 Obsidian 地图视图**：把任意来源的地点数据画到一张国内可用的地图上。
 

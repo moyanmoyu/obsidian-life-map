@@ -2,7 +2,7 @@
 
 [简体中文](README.zh-CN.md) · English
 
-> Repository: https://github.com/moyanmoyu/obsidian-life-map
+> Website: https://life-map-site.pages.dev · Repository: https://github.com/moyanmoyu/obsidian-life-map
 
 A **general-purpose map view for Obsidian**: plot places from notes, GeoJSON, CSV or any JSON API on one map that works well in mainland China.
 
