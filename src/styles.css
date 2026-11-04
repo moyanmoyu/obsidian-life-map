@@ -886,4 +886,14 @@
 	.life-map-canvas .maplibregl-ctrl-bottom-right {
 		bottom: 68px;
 	}
+
+	/* Sidebar becomes a bottom sheet: leave room for the floating nav bar so
+	   the last rows of the list / timeline are not covered by it. */
+	.life-map-side-body {
+		padding-bottom: 84px;
+	}
+
+	.life-map-side-header {
+		padding-bottom: 8px;
+	}
 }
