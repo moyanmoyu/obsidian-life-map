@@ -11,8 +11,8 @@ https://github.com/moyanmoyu/obsidian-life-map
 - [ ] I have tested this on Windows / Linux
 - [ ] I have tested this on Android
 - [x] The GitHub release contains `manifest.json`, `main.js`, and `styles.css`
-- [x] The GitHub release name matches the release tag (`v0.9.3`)
-- [x] The `manifest.json` version matches the release tag (`0.9.3`)
+- [x] The GitHub release name matches the release tag (`v0.9.4`)
+- [x] The `manifest.json` version matches the release tag (`0.9.4`)
 - [x] The README describes the plugin and how to use it
 - [x] The README includes screenshots
 - [x] I have disclosed any network usage (see below)
