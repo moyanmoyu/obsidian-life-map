@@ -11,8 +11,8 @@
 | `id = life-map` 是否被占用 | ✅ 未占用 |
 | `name = Life Map` 是否被占用 | ✅ 未占用 |
 | 仓库可见性 | ✅ Public |
-| Release | ✅ [v0.9.2](https://github.com/moyanmoyu/obsidian-life-map/releases/tag/v0.9.2)，含 main.js / manifest.json / styles.css |
-| 版本一致性 | ✅ manifest = package = versions = 0.9.2 |
+| Release | ✅ [v0.9.4](https://github.com/moyanmoyu/obsidian-life-map/releases/tag/v0.9.4)，含 main.js / manifest.json / styles.css |
+| 版本一致性 | ✅ manifest = package = versions = 0.9.4 |
 | LICENSE | ✅ MIT |
 | 遥测 | ✅ 无 |
 | 网络使用 | ✅ README 已披露 |
@@ -91,7 +91,7 @@ Obsidian 会逐项核对，重点在这几条：
 | 平台 | 状态 | 说明 |
 |---|---|---|
 | macOS | ✅ | 实机测试：地图、聚合、侧栏、内嵌地图、删除、导出 |
-| iOS | ✅ | iPhone 实机：地图渲染、弹窗、内嵌地图、侧栏 |
+| iOS | ✅ | iPhone 实机：地图渲染、弹窗、内嵌地图、侧栏；窄屏工具栏与底部抽屉遮挡问题已在 0.9.3 / 0.9.4 修复并复测通过 |
 | Windows / Linux | ❌ | 仅 CI 编译通过，未实机运行 |
 | Android | ❌ | 未实测 |
 
