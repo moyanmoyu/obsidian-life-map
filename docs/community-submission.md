@@ -31,7 +31,11 @@ npm run check:submission
 
 以上第 3、4 条当前都已满足。
 
-## 2. 提交步骤（只能由账号本人在网页完成）
+## 2. 提交表单填写内容
+
+字段级文案已整理在 [submission-form.md](submission-form.md)：一句话描述、长描述、分类建议、给审核方的说明、常见问答，可直接复制粘贴。
+
+## 3. 提交步骤（只能由账号本人在网页完成）
 
 1. 打开 https://community.obsidian.md 并用 Obsidian 账号登录
 2. 进入个人资料，**关联 GitHub 账号**（用来验证你拥有这个仓库）
@@ -41,7 +45,7 @@ npm run check:submission
 
 > 这一步需要登录你的 Obsidian 账号，我无法代做；前面所有材料都已就绪。
 
-## 3. 目录会自动检查什么
+## 4. 目录会自动检查什么
 
 | 检查点 | 说明 |
 |---|---|
@@ -51,7 +55,7 @@ npm run check:submission
 | README 摘要 | 目录页会展示 README 摘要，相对图片链接（如 `docs/images/overview.jpg`）会被自动重写到仓库 |
 | 开发者政策 | 无混淆、无遥测、无自更新机制、披露网络使用 |
 
-## 4. 审核期间的常见退回原因
+## 5. 审核期间的常见退回原因
 
 - manifest 版本与 Release tag 不一致 → 用 `npm run check:submission` 兜底
 - README 没写网络使用 → 已有「Network access and privacy」章节
@@ -59,7 +63,7 @@ npm run check:submission
 - 移动端崩溃 → 已实测 iOS / Android
 - id 冲突 → 已确认未占用
 
-## 5. 上架后的版本更新
+## 6. 上架后的版本更新
 
 不需要重新提交。每次更新：
 
@@ -76,7 +80,7 @@ git push origin main && git push origin vX.Y.Z
 
 CI 会自动构建并发布 Release，目录会读取新的 manifest + 对应 tag 的资产。
 
-## 6. 备注：已废弃的 PR 流程
+## 7. 备注：已废弃的 PR 流程
 
 旧的提交流程是在 `obsidianmd/obsidian-releases` 里编辑 `community-plugins.json` 并发 PR。该方式已不可用：
 
