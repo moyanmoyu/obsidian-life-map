@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.5
+
+- 社区目录提交修复：release tag 与 manifest 版本严格一致（不带 `v` 前缀）；本版用于让目录重新扫描到匹配的 release
+- CI 校验改为 tag 必须等于 manifest 版本
+
 ## 0.9.4
 
 ### 文档
