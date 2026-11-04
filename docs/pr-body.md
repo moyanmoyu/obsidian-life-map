@@ -7,13 +7,14 @@ https://github.com/moyanmoyu/obsidian-life-map
 ## Release Checklist
 
 - [x] I have tested this on macOS
+- [x] I have tested this on iOS (iPhone, Obsidian mobile)
 - [ ] I have tested this on Windows / Linux
-- [ ] I have tested this on mobile
+- [ ] I have tested this on Android
 - [x] The GitHub release contains `manifest.json`, `main.js`, and `styles.css`
-- [x] The GitHub release name matches the release tag (`v0.9.2`)
-- [x] The `manifest.json` version matches the release tag (`0.9.2`)
+- [x] The GitHub release name matches the release tag (`v0.9.3`)
+- [x] The `manifest.json` version matches the release tag (`0.9.3`)
 - [x] The README describes the plugin and how to use it
-- [ ] The README includes screenshots
+- [x] The README includes screenshots
 - [x] I have disclosed any network usage (see below)
 - [x] The plugin does not require payment
 - [x] The plugin does not require an account
