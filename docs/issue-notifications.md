@@ -49,6 +49,36 @@ https://api.day.app/AbCdEf123456/...
 - 推送失败只打印日志，不影响 issue 本身
 - 通知分组为 `Life Map`，可在 Bark App 里单独设置
 
+## 可选：AI 自动分类
+
+配置后，新 issue 会先经过一次 AI 分类，然后：
+
+1. 自动打上 `bug` / `enhancement` / `question` / `documentation` 标签
+2. Bark 通知标题带上分类、正文带上 AI 生成的一句话摘要
+3. （可选）自动发一条初步回复，向提问者索要复现信息
+
+### 配置
+
+**Secrets**（仓库 Settings → Secrets and variables → Actions）：
+
+| Name | Value |
+|---|---|
+| `AI_API_KEY` | 任意 OpenAI 兼容服务的 Key（默认 DeepSeek） |
+
+**Variables**（同一页面的 Variables 标签，可选）：
+
+| Name | 默认 | 说明 |
+|---|---|---|
+| `AI_BASE_URL` | `https://api.deepseek.com` | OpenAI 兼容端点 |
+| `AI_MODEL` | `deepseek-chat` | 模型名 |
+| `AI_COMMENT` | 未设置 | 设为 `true` 才会**自动发评论**；不设只打标签 + 通知 |
+
+> 不配置 `AI_API_KEY` 时，工作流自动跳过 AI 步骤，只做 Bark 通知，不会报错。
+
+### 为什么默认不自动发评论
+
+AI 回复可能不准确，默认只做「分类 + 打标签 + 通知」，由你自己决定是否回复。确认效果满意后再把 `AI_COMMENT` 设为 `true`。
+
 ## 想换成别的通知渠道
 
 把 `.github/workflows/issue-notify.yml` 里的 `curl` 那一步换成对应服务即可：

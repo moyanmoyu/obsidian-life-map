@@ -6,12 +6,96 @@ on:
 
 permissions:
   contents: read
-  issues: read
+  issues: write
 
 jobs:
-  bark:
+  notify:
     runs-on: ubuntu-latest
     steps:
+      # ---------------- 1. AI triage (optional) ----------------
+      - name: AI triage
+        id: ai
+        continue-on-error: true
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_BASE_URL: ${{ vars.AI_BASE_URL }}
+          AI_MODEL: ${{ vars.AI_MODEL }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_USER: ${{ github.event.issue.user.login }}
+        run: |
+          if [ -z "$AI_API_KEY" ]; then
+            echo "AI_API_KEY 未配置，跳过 AI 分类"
+            echo "category=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          BASE="${AI_BASE_URL:-https://api.deepseek.com}"
+          MODEL="${AI_MODEL:-deepseek-chat}"
+
+          SYSTEM='You triage GitHub issues for "Life Map", an Obsidian plugin that plots notes/GeoJSON/CSV/JSON APIs on a map. Reply with JSON only: {"category":"bug|enhancement|question|documentation|other","summary":"<=120 chars, same language as the issue","reply":"a short friendly first response in the issue language, at most 120 words. Do not promise fixes. If it is a bug, ask for Obsidian version, platform, and steps to reproduce. If it is a feature request, thank them and ask about the use case."}'
+
+          USER=$(printf 'Title: %s\nAuthor: @%s\n\n%s' "$ISSUE_TITLE" "$ISSUE_USER" "$ISSUE_BODY")
+
+          REQ=$(jq -n --arg m "$MODEL" --arg sys "$SYSTEM" --arg user "$USER" \
+            '{model:$m, messages:[{role:"system",content:$sys},{role:"user",content:$user}], temperature:0, response_format:{type:"json_object"}}')
+
+          RESP=$(curl -sS --max-time 60 "$BASE/chat/completions" \
+            -H "Authorization: Bearer $AI_API_KEY" \
+            -H 'Content-Type: application/json' \
+            -d "$REQ" || true)
+
+          CONTENT=$(printf '%s' "$RESP" | jq -r '.choices[0].message.content // empty')
+          if [ -z "$CONTENT" ]; then
+            echo "AI 调用失败，跳过"; echo "category=" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+
+          CATEGORY=$(printf '%s' "$CONTENT" | jq -r '.category // "other"')
+          SUMMARY=$(printf '%s' "$CONTENT" | jq -r '.summary // ""')
+          REPLY=$(printf '%s' "$CONTENT" | jq -r '.reply // ""')
+
+          {
+            echo "category=$CATEGORY"
+            echo "summary<<AI_EOF"
+            echo "$SUMMARY"
+            echo "AI_EOF"
+            echo "reply<<REPLY_EOF"
+            echo "$REPLY"
+            echo "REPLY_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      # ---------------- 2. Label (optional) ----------------
+      - name: Apply label
+        if: steps.ai.outputs.category != ''
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CATEGORY: ${{ steps.ai.outputs.category }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          case "$CATEGORY" in
+            bug) COLOR="d73a4a" ;;
+            enhancement) COLOR="a2eeef" ;;
+            question) COLOR="d876e3" ;;
+            documentation) COLOR="0075ca" ;;
+            *) COLOR="ededed" ;;
+          esac
+          gh label create "$CATEGORY" --color "$COLOR" --repo "$GITHUB_REPOSITORY" --force >/dev/null 2>&1 || true
+          gh issue edit "$ISSUE" --add-label "$CATEGORY" --repo "$GITHUB_REPOSITORY"
+
+      # ---------------- 3. Draft comment (opt-in) ----------------
+      - name: Post AI comment
+        if: steps.ai.outputs.reply != '' && vars.AI_COMMENT == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPLY: ${{ steps.ai.outputs.reply }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          printf '%s\n\n---\n*This first response was generated automatically by AI triage. A maintainer will follow up.*' "$REPLY" > /tmp/comment.md
+          gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
+
+      # ---------------- 4. Bark push ----------------
       - name: Push to Bark (iOS)
         env:
           BARK_KEY: ${{ secrets.BARK_KEY }}
@@ -20,22 +104,31 @@ jobs:
           ISSUE_URL: ${{ github.event.issue.html_url }}
           ISSUE_USER: ${{ github.event.issue.user.login }}
           ISSUE_BODY: ${{ github.event.issue.body }}
+          CATEGORY: ${{ steps.ai.outputs.category }}
+          SUMMARY: ${{ steps.ai.outputs.summary }}
         run: |
           if [ -z "$BARK_KEY" ]; then
             echo "BARK_KEY 未配置，跳过推送。配置方法见 docs/issue-notifications.md"
             exit 0
           fi
           SERVER="${BARK_SERVER:-https://api.day.app}"
-          SUMMARY=$(printf '%s' "$ISSUE_BODY" | head -c 300)
+          BODY=$(printf '%s' "$ISSUE_BODY" | head -c 200)
+          TITLE_PREFIX=""
+          if [ -n "$CATEGORY" ]; then TITLE_PREFIX="[$CATEGORY] "; fi
+          MESSAGE="$BODY"
+          if [ -n "$SUMMARY" ]; then MESSAGE="🤖 $SUMMARY
+          
+          ---
+          $BODY"; fi
+
           PAYLOAD=$(jq -n \
             --arg key "$BARK_KEY" \
-            --arg title "🐛 $ISSUE_TITLE" \
+            --arg title "🐛 $TITLE_PREFIX$ISSUE_TITLE" \
             --arg body "来自 @$ISSUE_USER
 
-          $SUMMARY" \
+          $MESSAGE" \
             --arg url "$ISSUE_URL" \
             '{device_key: $key, title: $title, body: $body, url: $url, group: "Life Map", sound: "minuet"}')
-          echo "Pushing to $SERVER ..."
           curl -sS --fail-with-body -X POST "$SERVER/push" \
             -H 'Content-Type: application/json' \
             -d "$PAYLOAD" || echo "Bark 推送失败（不影响 issue 本身）"
