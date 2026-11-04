@@ -1,44 +1,44 @@
 # Life Map
 
-简体中文 · [English](README.en.md)
+[简体中文](README.zh-CN.md) · English
 
-> 仓库：https://github.com/moyanmoyu/obsidian-life-map
+> Repository: https://github.com/moyanmoyu/obsidian-life-map
 
-一个**通用的 Obsidian 地图视图**：把任意来源的地点数据画到一张国内可用的地图上。
+A **general-purpose map view for Obsidian**: plot places from notes, GeoJSON, CSV or any JSON API on one map that works well in mainland China.
 
-- **笔记属性**：frontmatter 里有经纬度的笔记自动上屏
-- **GeoJSON / CSV**：放进 vault 就能看
-- **任意 HTTP API**：用 JSONPath 声明式映射，不写代码
-- **按地点聚合**：同一位置的多条记录合并成一个标记，每次到访作为子记录
-- **图层面板**：多数据源叠加、单源开关、按颜色区分
-- **筛选与搜索**：文本搜索 + 时间区间
-- **侧边面板**：列表 / 照片墙 / 时间轴三种视图，点条目地图自动飞过去
-- **照片大图**：点弹窗缩略图全屏查看，支持左右切换与 Esc 关闭
-- **导出**：当前视图导出为 GeoJSON 或 Markdown 清单（数据不被锁死）
-- **聚类**：点位密集时自动聚合
-- **点开即回笔记**：弹窗里直接跳回对应 Markdown
+- **Note properties**: notes with coordinates show up automatically
+- **GeoJSON / CSV**: drop the files into your vault
+- **Any HTTP API**: declarative JSONPath mapping, no code
+- **Place aggregation**: notes at the same spot merge into one marker, each visit is a sub-record
+- **Layers**: stack multiple sources, toggle each one, colour-code by source
+- **Search & filter**: free-text search plus date range
+- **Clustering**: automatic when pins get dense
+- **Photo wall & timeline** in the sidebar, plus a full-screen photo viewer
+- **Inline maps**: render a small map inside a note with a `life-map` code block
+- **Open from the map**: click a pin to jump back to its note
+- **Export**: current filtered view to GeoJSON or a Markdown table
 
-## 截图
+## Screenshots
 
-地图视图（聚类 + 侧栏时间轴）：
+Map view with clustering and the sidebar timeline:
 
-![地图视图](docs/images/overview.jpg)
+![Map view](docs/images/overview.jpg)
 
-一个地点、多次到访（每次到访是子记录，可单独打开或删除）：
+One place, multiple visits (each visit is a sub-record you can open or delete):
 
-![地点详情](docs/images/popup.jpg)
+![Place popup](docs/images/popup.jpg)
 
-笔记里的内嵌地图：
+Inline map inside a note:
 
-![内嵌地图](docs/images/inline-map.jpg)
+![Inline map](docs/images/inline-map.jpg)
 
-## 安装
+## Installation
 
-### 社区插件（待上架）
+### Community directory
 
-目前尚未提交到 Obsidian 社区目录，请先用下面的手动方式。
+Submission is in review — use the manual method below for now.
 
-### 手动
+### Manual
 
 ```bash
 npm install
@@ -46,77 +46,77 @@ npm run build
 npm run deploy -- /path/to/your/vault
 ```
 
-然后打开 Obsidian → 设置 → 第三方插件 → 关闭安全模式 → 启用 **Life Map**。
+Then in Obsidian: Settings → Community plugins → disable Safe mode → enable **Life Map**.
 
-左侧栏出现地图图标，或命令面板执行「Life Map: 打开地图视图」。
+A map icon appears in the ribbon; you can also run `Life Map: Open map view` from the command palette.
 
-## 新建地点笔记
+## Creating a place note
 
-### 方式一：命令（推荐）
+### Option 1: command (recommended)
 
-命令面板执行 **`Life Map: 新建地点笔记`**，或直接点地图视图工具栏的 **`+`** 按钮，填：
+Run **`Life Map: New place note`** from the command palette, or click the **`+`** button in the map toolbar, then fill in:
 
-| 字段 | 说明 |
+| Field | Notes |
 |---|---|
-| 名称 | 笔记标题，也是文件名 |
-| 纬度 / 经度 | 分开填，南纬/西经为负 |
-| 坐标系 | 高德/腾讯取到的选 `GCJ02`，GPS/GeoJSON 选 `WGS84` |
-| 分类 | 可选 |
+| Name | Note title and filename |
+| Latitude / Longitude | Separate fields; negative for south/west |
+| Coordinate system | `GCJ02` for AMap/Tencent, `WGS84` for GPS/GeoJSON |
+| Category | Optional |
 
-创建后会得到一篇这样的笔记并自动打开：
+It creates and opens a note like this:
 
 ```markdown
 ---
 coordinates: ["40.049600", "116.280700"]
 coord_sys: GCJ02
-title: "为明教育"
-category: "教育"
+title: "Some place"
+category: "food"
 tags:
   - life/places
 ---
 
-## 地图
+## Map
 
 ```life-map
 ```
 ```
 
-新建位置在 **设置 → 新建笔记位置** 里配置（默认 `10-生活/地点`），重名会自动加 `-2`、`-3`。
+The target folder is configurable in **Settings → New note folder** (default `10-生活/地点`); duplicate names get `-2`, `-3`.
 
-### 方式二：手动
+### Option 2: by hand
 
-新建笔记，写 frontmatter：
-
-```yaml
----
-coordinates: ["40.0496", "116.2807"]
-coord_sys: GCJ02
-title: 为明教育
-tags: [life/places]
----
-```
-
-再加一个 `life-map` 代码块即可。
-
-## 快速开始
-
-给任意笔记加上坐标：
+Create a note with frontmatter:
 
 ```yaml
 ---
 coordinates: ["39.9042", "116.4074"]
-title: 示例地点
+coord_sys: WGS84
+title: Some place
+tags: [life/places]
+---
+```
+
+Then add a `life-map` code block.
+
+## Quick start
+
+Add coordinates to any note:
+
+```yaml
+---
+coordinates: ["39.9042", "116.4074"]
+title: Example place
 category: food
 visited_at: 2025-03-02
 tags: [life/places]
 ---
 ```
 
-打开地图视图，点位就出现了。
+Open the map view and the pin appears.
 
-## 在笔记里内嵌地图
+## Inline maps
 
-在任意笔记里加一个 `life-map` 代码块，就地渲染一张小地图：
+Add a `life-map` code block to any note to render a small map in place:
 
 ````markdown
 ```life-map
@@ -128,63 +128,63 @@ interactive: false
 ```
 ````
 
-| 选项 | 默认 | 说明 |
+| Option | Default | Description |
 |---|---|---|
-| `center` | 当前笔记的坐标 | 支持 `[lat, lng]` 或 `"lat,lng"`，**按 WGS-84 解释**；笔记无坐标时显示全国（笔记自身坐标会按 `coord_sys` 自动转换） |
-| `zoom` | `13`（有中心时）/ `4` | 1–18 |
+| `center` | the note's own coordinates | `[lat, lng]` or `"lat,lng"`, interpreted as **WGS-84**; falls back to a country-wide view |
+| `zoom` | `13` with a center, else `4` | 1–18 |
 | `height` | `260` | 120–600 px |
-| `tag` | 全部 | 只显示带该标签的点 |
-| `limit` | `1000` | 最多渲染多少点 |
-| `interactive` | `true` | `false` 时禁止拖动缩放，当静态图用 |
+| `tag` | all | only show places carrying this tag |
+| `limit` | `1000` | max number of markers |
+| `interactive` | `true` | `false` renders a static map |
 
-- 笔记自己有坐标时，会额外画一个**红色高亮点**标出当前笔记的位置
-- 点击点位会跳转到对应笔记
-- 同一页面最多同时渲染 6 个地图（每个地图占一个 WebGL 上下文）
-- 点「打开完整地图」会**带上当前内嵌地图的视野范围和 `tag` 筛选**，不会一下跳到全量数据；筛选条可以一键移除
+- When the note has coordinates, it is highlighted with an extra red marker
+- Clicking a pin opens the corresponding note
+- At most 6 inline maps per page (each one holds a WebGL context)
+- "Open full map" carries the inline map's **viewport and tag filter** over; the filter chips can be removed individually
 
-## 支持的数据源
+## Data sources
 
-### 1. 笔记属性（默认开启）
+### 1. Note properties (enabled by default)
 
-| 字段 | 默认属性 | 说明 |
+| Field | Default property | Notes |
 |---|---|---|
-| 坐标 | `coordinates` | `["lat","lng"]` 数组、`"lat,lng"` 字符串或 `{lat,lng}` 对象 |
-| 备选坐标 | `latitude` / `longitude` | 上面取不到时使用 |
-| 坐标系 | `coord_sys` | `WGS84`（默认）/ `GCJ02` / `BD09` |
-| 名称 | `title` | 取不到用文件名 |
-| 时间 | `visited_at` | 用于时间筛选 |
-| 分类 | `category` | |
-| 标签 | `tags` | 与文件标签合并 |
-| 封面/相册 | `cover` / `photos` | wikilink、vault 路径或 URL |
+| Coordinates | `coordinates` | `["lat","lng"]`, `"lat,lng"` or `{lat,lng}` |
+| Fallback coords | `latitude` / `longitude` | used when the above is missing |
+| Coordinate system | `coord_sys` | `WGS84` (default) / `GCJ02` / `BD09` |
+| Name | `title` | falls back to the filename |
+| Time | `visited_at` | used by the date filter |
+| Category | `category` | |
+| Tags | `tags` | merged with file tags |
+| Cover / photos | `cover` / `photos` | wikilink, vault path or URL |
 
-属性名都可以在设置里改。
+All property names are configurable.
 
 ### 2. GeoJSON
 
-把 `.geojson` 文件放进 vault 即可（扫描目录可在设置里限制）。当前只渲染 `Point` / `MultiPoint`，线、面暂不支持。
+Drop `.geojson` files into the vault. Only `Point` / `MultiPoint` features are rendered for now.
 
 ### 3. CSV
 
-`.csv` 文件放进 vault，需包含经纬度列。自动识别列名：
+Drop `.csv` files into the vault; a latitude and longitude column are required. Column names are auto-detected:
 
-| 目标 | 可识别列名 |
+| Field | Recognised columns |
 |---|---|
-| 纬度 | `lat` / `latitude` / `纬度` / `y` |
-| 经度 | `lng` / `lon` / `long` / `longitude` / `经度` / `x` |
-| 名称 | `name` / `title` / `标题` / `名称` |
-| 时间 | `time` / `date` / `visited_at` / `日期` |
-| 分类 | `category` / `type` / `类型` |
-| 标签 | `tags` / `标签` |
+| Latitude | `lat` / `latitude` / `y` |
+| Longitude | `lng` / `lon` / `long` / `longitude` / `x` |
+| Name | `name` / `title` |
+| Time | `time` / `date` / `visited_at` |
+| Category | `category` / `type` |
+| Tags | `tags` / `tag` |
 
-没有经纬度列的 CSV 会被跳过，不会误导入普通表格。
+CSV files without coordinate columns are skipped.
 
-### 4. HTTP API（设置里添加）
+### 4. HTTP API (configured in settings)
 
-只要接口返回 JSON，就能用字段映射接进来：
+Any JSON endpoint can be mapped declaratively:
 
 ```jsonc
 {
-  "name": "我的生活记录",
+  "name": "My places",
   "url": "https://api.example.com/v1/pois",
   "headers": { "Authorization": "Bearer xxx" },
   "coordSys": "gcj02",
@@ -203,62 +203,51 @@ interactive: false
 }
 ```
 
-支持的 JSONPath 子集：
+Supported JSONPath subset: `$.a.b`, `$.a[0].b`, `$.a[*].b` (leading `$.` optional).
 
-| 语法 | 含义 |
-|---|---|
-| `$.a.b` | 属性访问 |
-| `$.a[0].b` | 数组下标 |
-| `$.a[*].b` | 通配展开（返回列表） |
+Requests go through Obsidian's `requestUrl`, so **no CORS setup is needed** on your backend. GET only for now.
 
-请求由 Obsidian 的 `requestUrl` 发出，**不走浏览器 CORS**，后端无需配置跨域。目前只支持 GET。
+> ⚠️ Tokens in headers are stored in plain text in `.obsidian/plugins/life-map/data.json`.
 
-> ⚠️ 请求头里的 token 明文保存在 `.obsidian/plugins/life-map/data.json`，请自行评估风险。
+## Basemaps
 
-## 底图
-
-| 底图 | 是否需要 Key | 说明 |
+| Basemap | Key required | Notes |
 |---|---|---|
-| 天地图（默认） | 需要 tk | 国内合规、访问稳定 |
-| OpenFreeMap | 不需要 | 海外访问快，国内可能较慢 |
-| 自定义 XYZ | 不需要 | 自建瓦片 / 企业瓦片 |
-| 高德（预设） | 不需要 | 设置里一键填入；**仅供个人自用**，对外分发需取得高德授权 |
+| Tianditu (default) | `tk` | Compliant, stable in mainland China |
+| OpenFreeMap | no | Fast overseas, may be slow in China |
+| Custom XYZ | no | self-hosted or corporate tiles |
+| AMap (preset) | no | one-click preset; **personal use only**, redistribution needs an AMap licence |
 
-### 天地图 tk
+### Tianditu tk
 
-1. 打开 https://console.tianditu.gov.cn/ 注册并创建应用
-2. 类型选「浏览器端」，把 tk 填进插件设置
-3. 天地图按 **User-Agent** 判断请求来源：用 curl 之类的工具直接请求会返回 `403 / 301012 权限类型错误`，而 Obsidian（Electron / Chromium UA）属于浏览器环境，可以正常取图。若你的环境仍被判定为非浏览器，再改用「服务端」类型 tk
+1. Register at https://console.tianditu.gov.cn/ and create an app
+2. Pick the "browser" key type and paste the `tk` into the settings
+3. Tianditu gates requests on the **User-Agent**: plain `curl` gets `403 / 301012`, while Obsidian (Electron/Chromium) works. If your key is still rejected, switch it to the "server" type
 
-未填 tk 时不会报错：插件会自动回退到 OpenFreeMap，并在视图顶部提示。
+Without a `tk` the plugin falls back to a keyless basemap and shows a hint — it never fails silently.
 
-### 自定义瓦片
+### Custom tiles
 
-填 `https://example.com/{z}/{x}/{y}.png` 形式的模板即可。注意瓦片坐标系设置：高德/腾讯的栅格瓦片是 GCJ-02，天地图/自建通常是 WGS-84，选错会导致整体偏移。
+Point it at any `https://example.com/{z}/{x}/{y}.png` template. Mind the tile coordinate system: AMap/Tencent raster tiles are GCJ-02, Tianditu/self-hosted are usually WGS-84.
 
-## 国外点位
+## Places outside China
 
-可以正常显示：
+Works fine: transparent coordinates skip the GCJ-02 offset, and OpenFreeMap (or any global tile source) covers the rest. Tianditu is China-focused, so switch to OpenFreeMap if your pins are abroad. The map auto-fits your data on first load, and the toolbar has a "Fit to all data" button.
 
-- 坐标转换会自动识别「中国境外」并跳过 GCJ-02 偏移，国外坐标不会被错误纠正
-- 底图用 **OpenFreeMap**（全球覆盖）或自定义的全球瓦片即可
-- 天地图以中国为主，国外区域可能是空白，出国点位多时建议切 OpenFreeMap
-- 首次打开地图会自动缩放到你的数据范围；之后可用工具栏的「缩放到全部数据」按钮重取景
+## Extending (plugin authors)
 
-## 扩展（给插件作者）
-
-其他插件可以注册数据源和底图：
+Other plugins can register data sources and basemaps:
 
 ```ts
 const lifeMap = (app as any).plugins.plugins['life-map'];
 lifeMap?.api.registerSource({
   id: 'my-src',
-  name: '我的数据',
+  name: 'My data',
   async load() {
     return [{
       id: 'my-src:1',
       sourceId: 'my-src',
-      name: '某个地点',
+      name: 'Some place',
       lat: 39.9042,
       lng: 116.4074,
       coordSys: 'WGS84',
@@ -270,73 +259,63 @@ lifeMap?.api.registerSource({
 });
 ```
 
-API：`registerSource` / `unregisterSource` / `registerBasemap` / `refresh` / `getResults` / `getFeatures` / `open`。
+API: `registerSource` / `unregisterSource` / `registerBasemap` / `refresh` / `getResults` / `getFeatures` / `open`.
 
-**不支持**在设置里写 JS 脚本自定义数据源——那等于任意代码执行，安全与审核都不可控。复杂数据请先转成 GeoJSON / CSV，或写一个注册数据源的插件。
+There is intentionally **no user scripting hook** — that would be arbitrary code execution. Convert exotic data to GeoJSON/CSV, or write a small plugin.
 
-## 已知限制（v0.1）
+## Deleting records
 
-- 只渲染点，不支持线（GPX 轨迹）和面
-- 单次全量加载，未做增量同步
-- 建议点位数 ≤ 20,000（再多需要瓦片化/预聚合）
-- 移动端未经充分测试
+Each visit in the place popup has a delete button:
 
-## 删除记录
+- Only vault Markdown notes can be deleted; they go to the trash (recoverable), not permanent deletion
+- A confirmation dialog always appears first
+- GeoJSON / CSV / HTTP sources are read-only and have no delete button
+- The map, sidebar and counters refresh automatically afterwards
 
-地点弹窗里每条到访记录右侧有「删除」按钮：
+## Commands
 
-- 只会删除 **vault 内的 Markdown 笔记**，并移入回收站（可在 Obsidian / 系统回收站恢复）
-- 删除前会弹二次确认，避免误触
-- GeoJSON / CSV / HTTP 数据源是只读的，不会显示删除按钮
-- 删除后地图、侧栏、统计会自动刷新
-
-## 命令
-
-| 命令 | 作用 |
+| Command | What it does |
 |---|---|
-| `Life Map: 打开地图视图` | 打开/聚焦地图 |
-| `Life Map: 刷新地图数据` | 重新加载所有数据源 |
-| `Life Map: 导出当前视图为 GeoJSON` | 按当前筛选结果导出（WGS-84） |
-| `Life Map: 导出当前视图为 Markdown 清单` | 按当前筛选结果导出表格 |
+| `Life Map: Open map view` | open / focus the map |
+| `Life Map: New place note` | form-driven note creation |
+| `Life Map: Refresh map data` | reload every source |
+| `Life Map: Export view as GeoJSON` | export the current filtered view (WGS-84) |
+| `Life Map: Export view as Markdown table` | export the current filtered view |
 
-## 兼容性
+## Compatibility
 
-| 项 | 说明 |
+| Item | Notes |
 |---|---|
-| 最低 Obsidian 版本 | 1.5.0 |
-| 桌面端 | macOS / Windows / Linux |
-| 移动端 | iOS / Android（基础可用，未做深度适配） |
-| 离线 | 数据源可离线；底图需要网络或瓦片缓存 |
+| Minimum Obsidian | 1.5.0 |
+| Desktop | macOS / Windows / Linux |
+| Mobile | iOS / Android (basic support) |
+| Offline | data sources work offline; basemaps need network or cached tiles |
 
-## 网络访问与隐私
+## Network access and privacy
 
-插件本身**不发送任何遥测**，也没有自动更新机制。联网只发生在这些情况：
+No telemetry, no auto-update mechanism. Network access only happens for:
 
-| 场景 | 目标域名 | 说明 |
-|---|---|---|
-| 天地图底图 | `t0~t7.tianditu.gov.cn` | 用户自己申请 tk 后加载瓦片 |
-| OpenFreeMap 底图 | `tiles.openfreemap.org` | 降级/海外底图 |
-| 自定义瓦片 | 用户填写的地址 | 由用户自行配置 |
-| HTTP 数据源 | 用户填写的地址 | 由用户自行配置，凭证存本地 |
+| Purpose | Host |
+|---|---|
+| Tianditu tiles | `t0`–`t7.tianditu.gov.cn` |
+| OpenFreeMap tiles | `tiles.openfreemap.org` |
+| Custom tiles | whatever you configure |
+| HTTP data sources | whatever you configure |
 
-- 凭证（HTTP 源的 token）明文保存在 `.obsidian/plugins/life-map/data.json`，请自行评估风险。
-- 插件不收集、不上报任何点位、笔记或图片内容。
-- 底图数据版权归各厂商所有，插件不缓存、不转售。
+Credentials are stored locally in `.obsidian/plugins/life-map/data.json` (plain text). No note, photo or coordinate is ever collected or uploaded.
 
-## 隐私与合规
+## Known limitations (v0.9)
 
-- **无遥测**、无统计、不上报任何数据
-- 联网仅限：用户配置的 HTTP 数据源、所选底图的瓦片服务
-- 插件**不提供任何地图数据**，底图由用户自行选择并遵守对应厂商条款
-- 天地图瓦片不得缓存后二次分发，且不可移除署名
+- Points only — no polylines (GPX tracks) or polygons
+- Full reload on each refresh, no incremental sync
+- Recommended up to ~20,000 places
+- Photos are shown as thumbnails / lightbox, no album management
 
-## 开发与发布
+## Development and releasing
 
-改代码、跑测试、发版看这两份文档：
-
-- [开发说明](docs/DEVELOPMENT.md)：环境、常用命令、目录结构、测试与已知坑
-- [发版说明](docs/RELEASING.md)：版本一致性、发布流程、**如何避免把地图 Key 发出去**
-- [官网部署](site/README.md)：`site/` 静态门户站 + Cloudflare Pages
+- [Development](docs/DEVELOPMENT.md): environment, commands, project layout, tests and pitfalls
+- [Releasing](docs/RELEASING.md): version consistency, release flow, **how not to ship your map key**
+- [Website](site/README.md): the static portal and Cloudflare Pages deployment
 
 ## License
 

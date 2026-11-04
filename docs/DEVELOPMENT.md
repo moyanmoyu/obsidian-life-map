@@ -1,6 +1,6 @@
 # 开发
 
-> 面向改代码的人。普通用户看 [README](../README.md) 就够。
+> 面向改代码的人。普通用户看 [README](../README.md)（英文）或 [README.zh-CN.md](../README.zh-CN.md)（中文）就够。
 
 ## 环境
 

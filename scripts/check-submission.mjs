@@ -45,13 +45,13 @@ try {
 }
 
 console.log('\n必需文件');
-for (const file of ['LICENSE', 'README.md', 'README.en.md', 'manifest.json']) {
+for (const file of ['LICENSE', 'README.md', 'README.zh-CN.md', 'manifest.json']) {
 	if (fs.existsSync(file)) ok(file);
 	else bad(`缺少 ${file}`);
 }
 
 console.log('\n发布合规');
-const readme = read('README.md') + read('README.en.md');
+const readme = read('README.md') + read('README.zh-CN.md');
 if (/telemetry|遥测/i.test(readme)) ok('README 声明了遥测策略');
 else bad('README 未声明遥测策略（目录要求披露）');
 if (/network|网络访问|http/i.test(readme)) ok('README 声明了网络访问');
