@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.10.0
+
+### 渲染内核
+- 升级 `maplibre-gl` **4.7.1 → 6.16.0**（依赖安全公告要求），改用命名导入
+- **修复地图空白**：maplibre 6 把 worker 拆成独立 ES 模块，按 `import.meta.url` 解析；在 Obsidian 的 `app://` 协议下会解析成 HTML 页面，导致 worker 加载失败、底图正常但没有点位。现在把 worker 源码打包进插件并用 Blob URL 注入（`setWorkerUrl`）
+- **修复内嵌地图点位不显示**：GeoJSON 坐标经纬度顺序写反（`[lat, lng]` → `[lng, lat]`）
+- esbuild / tsconfig target 提升到 ES2020（maplibre 6 使用 BigInt 字面量）
+
+### 体积
+- `main.js` 从 871KB 增至约 1.67MB（内嵌 507KB worker 源码）
+
 ## 0.9.8
 
 ### 代码质量

@@ -5,9 +5,9 @@ import {
 	type EventRef,
 	type MarkdownPostProcessorContext,
 } from 'obsidian';
-import maplibregl, {
+import {
+	Map as MapLibreMap,
 	type GeoJSONSource,
-	type Map as MapLibreMap,
 	type MapLayerMouseEvent,
 	type StyleSpecification,
 } from 'maplibre-gl';
@@ -179,17 +179,22 @@ export function renderInlineMap(
 		const points = places.map((place) => {
 			const isOwn = place.visits.some((visit) => visit.link === ctx.sourcePath);
 			if (isOwn) matchedOwn = true;
+			// `fromWGS84` returns [lat, lng]; GeoJSON coordinates are [lng, lat].
+			const [lat, lng] = fromWGS84(place.lat, place.lng, targetSys);
 			return {
 				place,
 				own: isOwn,
-				lngLat: fromWGS84(place.lat, place.lng, targetSys),
+				lngLat: [lng, lat] as [number, number],
 			};
 		});
 
 		// Only when the note's POI is not part of the dataset (e.g. excluded by
 		// tag filter) do we add a standalone marker for the note itself.
-		const extraOwn =
-			ownWgs && !matchedOwn ? fromWGS84(ownWgs[0], ownWgs[1], targetSys) : null;
+		let extraOwn: [number, number] | null = null;
+		if (ownWgs && !matchedOwn) {
+			const [lat, lng] = fromWGS84(ownWgs[0], ownWgs[1], targetSys);
+			extraOwn = [lng, lat];
+		}
 
 		return { points, extraOwn };
 	};
@@ -369,7 +374,7 @@ export function renderInlineMap(
 		}
 		const center = fromWGS84(centerLatLng[0], centerLatLng[1], basemapSys);
 
-		map = new maplibregl.Map({
+		map = new MapLibreMap({
 			container: mapEl,
 			style: styleFor(plugin),
 			center: [center[1], center[0]],

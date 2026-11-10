@@ -1,6 +1,6 @@
 {
   "name": "obsidian-life-map",
-  "version": "0.9.8",
+  "version": "0.10.0",
   "description": "Generic map view for Obsidian: pluggable data sources, China-friendly basemaps, clustered markers.",
   "main": "main.js",
   "scripts": {
@@ -30,6 +30,6 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "maplibre-gl": "^4.7.1"
+    "maplibre-gl": "^6.16.0"
   }
 }

@@ -24,6 +24,28 @@ function emitCss() {
 	fs.writeFileSync(cssOut, `${libCss}\n\n${ownCss}`);
 }
 
+const workerTextPlugin = {
+	name: 'maplibre-worker-text',
+	setup(build) {
+		build.onResolve({ filter: /^life-map-maplibre-worker$/ }, (args) => ({
+			path: args.path,
+			namespace: 'maplibre-worker',
+		}));
+		build.onLoad({ filter: /.*/, namespace: 'maplibre-worker' }, async () => {
+			const source = fs.readFileSync('node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs', 'utf8');
+			const minified = await esbuild.transform(source, {
+				minify: true,
+				loader: 'js',
+				target: 'es2020',
+			});
+			return {
+				contents: `export default ${JSON.stringify(minified.code)};`,
+				loader: 'js',
+			};
+		});
+	},
+};
+
 const cssPlugin = {
 	name: 'emit-css',
 	setup(build) {
@@ -56,7 +78,7 @@ const options = {
 		'zlib',
 	],
 	format: 'cjs',
-	target: 'es2018',
+	target: 'es2020',
 	logLevel: 'info',
 	sourcemap: prod ? false : 'inline',
 	treeShaking: true,
@@ -65,7 +87,7 @@ const options = {
 	define: {
 		'process.env.NODE_ENV': JSON.stringify(prod ? 'production' : 'development'),
 	},
-	plugins: [cssPlugin],
+	plugins: [cssPlugin, workerTextPlugin],
 };
 
 if (prod) {

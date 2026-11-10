@@ -1,4 +1,6 @@
 import { Notice, Plugin, type WorkspaceLeaf } from 'obsidian';
+import { setWorkerUrl } from 'maplibre-gl';
+import maplibreWorkerSource from 'life-map-maplibre-worker';
 import { LifeMapApiImpl, type LifeMapApi } from './api';
 import { BUILTIN_BASEMAPS } from './basemaps';
 import { VIEW_TYPE_LIFE_MAP } from './constants';
@@ -29,6 +31,22 @@ export interface MapViewIntent {
 	bbox?: [number, number, number, number];
 }
 
+let maplibreWorkerUrl: string | null = null;
+
+/**
+ * MapLibre GL JS ships its worker as a separate ES module and resolves it
+ * relative to `import.meta.url`. Inside a bundled Obsidian plugin that path is
+ * meaningless (the app:// protocol answers with HTML), so the worker never
+ * loads and the map renders tiles but no geometry. Embedding the worker source
+ * and handing MapLibre a blob URL keeps everything local and CSP-friendly.
+ */
+function ensureMaplibreWorker(): void {
+	if (maplibreWorkerUrl) return;
+	const blob = new Blob([maplibreWorkerSource], { type: 'text/javascript' });
+	maplibreWorkerUrl = URL.createObjectURL(blob);
+	setWorkerUrl(maplibreWorkerUrl);
+}
+
 export default class LifeMapPlugin extends Plugin {
 	settings!: LifeMapSettings;
 	registry = new Registry();
@@ -44,6 +62,8 @@ export default class LifeMapPlugin extends Plugin {
 	private autoRefreshTimer: number | null = null;
 
 	async onload(): Promise<void> {
+		ensureMaplibreWorker();
+
 		await this.loadSettings();
 
 		// Built-in data sources

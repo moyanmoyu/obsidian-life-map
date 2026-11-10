@@ -1,9 +1,12 @@
 import { ItemView, Notice, TFile, setIcon, type WorkspaceLeaf } from 'obsidian';
-import maplibregl, {
+import {
+	AttributionControl,
+	Map as MapLibreMap,
+	NavigationControl,
+	Popup as MapLibrePopup,
+	ScaleControl,
 	type GeoJSONSource,
-	type Map as MapLibreMap,
 	type MapLayerMouseEvent,
-	type Popup as MapLibrePopup,
 } from 'maplibre-gl';
 import { basemapCoordSys } from '../basemaps';
 import { resolveBasemap } from '../basemaps/common';
@@ -308,7 +311,7 @@ export class LifeMapView extends ItemView {
 			return;
 		}
 
-		this.map = new maplibregl.Map({
+		this.map = new MapLibreMap({
 			container: this.mapEl,
 			style: basemap.getStyle(settings, this.useDark()),
 			center: [104.2, 35.86],
@@ -318,10 +321,10 @@ export class LifeMapView extends ItemView {
 		});
 		this.styleSignature = this.computeStyleSignature();
 
-		this.map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-		this.map.addControl(new maplibregl.ScaleControl({ unit: 'metric', maxWidth: 120 }), 'bottom-left');
+		this.map.addControl(new NavigationControl({ showCompass: false }), 'bottom-right');
+		this.map.addControl(new ScaleControl({ unit: 'metric', maxWidth: 120 }), 'bottom-left');
 		if (settings.showAttribution) {
-			this.map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
+			this.map.addControl(new AttributionControl({ compact: true }), 'bottom-right');
 		}
 
 		this.map.on('load', () => this.repaint());
@@ -538,7 +541,7 @@ export class LifeMapView extends ItemView {
 		this.activeIndex = index;
 		this.refreshSidebar();
 
-		const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '340px', offset: 14 })
+		const popup = new MapLibrePopup({ closeButton: true, maxWidth: '340px', offset: 14 })
 			.setLngLat(lngLat)
 			.setDOMContent(content)
 			.addTo(map);
