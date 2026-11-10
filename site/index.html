@@ -24,6 +24,7 @@
     <a href="#how">怎么用</a>
     <a href="#install">安装</a>
     <a href="#faq">FAQ</a>
+    <a href="#changelog">更新日志</a>
     <a href="en/">EN</a>
     <a class="ghost" href="https://github.com/moyanmoyu/obsidian-life-map" target="_blank" rel="noopener">GitHub</a>
   </nav>
@@ -127,6 +128,45 @@
     <details><summary>国外地点能显示吗？</summary><p>能。境外坐标自动跳过 GCJ-02 偏移，底图用 OpenFreeMap 或全球瓦片即可；天地图以中国为主。</p></details>
     <details><summary>会上传我的数据吗？</summary><p>不会。没有遥测；联网只发生在加载你选择的底图，以及你自己配置的 HTTP 数据源。</p></details>
     <details><summary>删除笔记会永久消失吗？</summary><p>不会。删除走 Obsidian 的回收站，可恢复；每次删除都有二次确认。</p></details>
+  </section>
+
+  <section id="changelog" class="section">
+    <h2>更新日志</h2>
+    <p class="section-lead">最近几个版本的主要变化，完整记录见 <a href="https://github.com/moyanmoyu/obsidian-life-map/blob/main/CHANGELOG.md" target="_blank" rel="noopener">CHANGELOG.md</a>。</p>
+    <ol class="log">
+      <li>
+        <div class="log-head"><b>0.10.0</b><time>2026-11-10</time></div>
+        <ul>
+          <li>渲染内核升级到 maplibre-gl 6.16，清掉依赖安全公告</li>
+          <li>修复地图只有底图、没有点位（worker 在 Obsidian 协议下加载失败）</li>
+          <li>修复内嵌地图红点不显示（坐标经纬度顺序）</li>
+        </ul>
+      </li>
+      <li>
+        <div class="log-head"><b>0.9.8</b><time>2026-11-04</time></div>
+        <ul>
+          <li>清理多余类型断言，记录已接受的审查提示</li>
+        </ul>
+      </li>
+      <li>
+        <div class="log-head"><b>0.9.7</b><time>2026-11-04</time></div>
+        <ul>
+          <li>设置页标题不再重复插件名（社区目录要求）</li>
+        </ul>
+      </li>
+      <li>
+        <div class="log-head"><b>0.9.6</b><time>2026-11-04</time></div>
+        <ul>
+          <li>修复社区目录代码审查报错；Release 附带构建来源证明</li>
+        </ul>
+      </li>
+      <li>
+        <div class="log-head"><b>0.9.4</b><time>2026-11-04</time></div>
+        <ul>
+          <li>移动端工具栏与底部抽屉适配，iOS 实机验证通过</li>
+        </ul>
+      </li>
+    </ol>
   </section>
 
   <section class="cta-final">

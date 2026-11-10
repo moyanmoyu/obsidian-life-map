@@ -138,3 +138,13 @@ footer { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-b
   .hero-visual { order: 2; }
   .nav nav a:not(.ghost) { display: none; }
 }
+
+/* Changelog */
+
+.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.log > li { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.log-head { display: flex; align-items: baseline; gap: 10px; }
+.log-head b { font-size: 15px; }
+.log-head time { color: var(--muted); font-size: 12.5px; }
+.log ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+.log ul li { margin: 3px 0; }

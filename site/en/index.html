@@ -24,6 +24,7 @@
     <a href="#how">How it works</a>
     <a href="#install">Install</a>
     <a href="#faq">FAQ</a>
+    <a href="#changelog">Changelog</a>
     <a href="../">中文</a>
     <a class="ghost" href="https://github.com/moyanmoyu/obsidian-life-map" target="_blank" rel="noopener">GitHub</a>
   </nav>
@@ -127,6 +128,45 @@
     <details><summary>Does it work outside China?</summary><p>Yes. Overseas coordinates skip the GCJ-02 offset automatically and render correctly on OpenFreeMap or any global tile source.</p></details>
     <details><summary>Does it upload my data?</summary><p>No telemetry. Network access only happens for the basemap you pick and the HTTP sources you configure yourself.</p></details>
     <details><summary>Is deleting a note permanent?</summary><p>No. Deletes go to the Obsidian/system trash and always require confirmation.</p></details>
+  </section>
+
+  <section id="changelog" class="section">
+    <h2>Changelog</h2>
+    <p class="section-lead">Notable changes in recent releases — see <a href="https://github.com/moyanmoyu/obsidian-life-map/blob/main/CHANGELOG.md" target="_blank" rel="noopener">CHANGELOG.md</a> for the full history.</p>
+    <ol class="log">
+      <li>
+        <div class="log-head"><b>0.10.0</b><time>2026-11-10</time></div>
+        <ul>
+          <li>Rendering engine upgraded to maplibre-gl 6.16 (clears the dependency advisory)</li>
+          <li>Fixed maps that showed basemap tiles but no markers (worker failed to load under Obsidian's app:// protocol)</li>
+          <li>Fixed missing markers in inline maps (lat/lng order)</li>
+        </ul>
+      </li>
+      <li>
+        <div class="log-head"><b>0.9.8</b><time>2026-11-04</time></div>
+        <ul>
+          <li>Removed redundant type assertions; documented accepted review notes</li>
+        </ul>
+      </li>
+      <li>
+        <div class="log-head"><b>0.9.7</b><time>2026-11-04</time></div>
+        <ul>
+          <li>Settings heading no longer repeats the plugin name (directory requirement)</li>
+        </ul>
+      </li>
+      <li>
+        <div class="log-head"><b>0.9.6</b><time>2026-11-04</time></div>
+        <ul>
+          <li>Fixed community directory code review errors; releases now carry build provenance</li>
+        </ul>
+      </li>
+      <li>
+        <div class="log-head"><b>0.9.4</b><time>2026-11-04</time></div>
+        <ul>
+          <li>Mobile toolbar and bottom-sheet fixes, verified on iOS</li>
+        </ul>
+      </li>
+    </ol>
   </section>
 
   <section class="cta-final">
